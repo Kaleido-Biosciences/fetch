@@ -27,6 +27,7 @@ public class JarvisResource {
     private KaptureClient<Supplement> supplementKaptureClient;
 
     public static final String microLiter = "\u00B5L";
+    public static final String microGram = "\u00B5g";
 
     public JarvisResource(KaptureClient<Media> mediaKaptureClient, KaptureClient<Batch> batchKaptureClient, KaptureClient<Community> communityKaptureClient, KaptureClient<Supplement> supplementKaptureClient) {
         this.mediaKaptureClient = mediaKaptureClient;
@@ -134,9 +135,16 @@ public class JarvisResource {
             //map the responses to a Component
             return supplementResponse.getBody().stream()
                     .map(supplement -> {
-                        Component component = new Component();
-                        //todo more mapping required maybe in a mapper class
-                        return component;
+                        return Component.builder()
+                            .id(supplement.getId())
+                            .classification("Supplement")
+                            .classificationSymbol("S")
+                            .name(supplement.getName())
+                            .altName("")
+                            .allowedUnits(List.of(microGram,"mg","g")) //todo check these
+                            .toolTip(Map.of("Supplement class", supplement.getClassification(), "", supplement.getDescription())) //todo confirm this
+                            .build();
+
                     })
                     .collect(Collectors.toList());
 
