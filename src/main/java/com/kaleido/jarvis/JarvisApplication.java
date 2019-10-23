@@ -1,4 +1,4 @@
-package com.kaleidobio.jarvis;
+package com.kaleido.jarvis;
 
 import com.kaleido.kaptureclient.KaptureClientConfiguration;
 import org.springframework.boot.SpringApplication;
