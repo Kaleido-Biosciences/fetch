@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -48,19 +49,22 @@ public class JarvisResource {
         }
 
 
+        //search a bunch of endpoints in parallel
+        final String finalSearchTerm = searchTerm;
+        var mediaComponents = CompletableFuture.supplyAsync(() -> searchMedia(finalSearchTerm));
+        var batchComponents = CompletableFuture.supplyAsync(() -> searchBatch(finalSearchTerm));
+        var communityComponents = CompletableFuture.supplyAsync(() -> searchCommunity(finalSearchTerm));
+        var supplementComponents = CompletableFuture.supplyAsync(() -> searchSupplement(finalSearchTerm));
 
-        //search a bunch of endpoints
-        //todo these could all be called asynchronously and the results collected together
-        List<Component> mediaComponents = searchMedia(searchTerm);
-        List<Component> batchComponents = searchBatch(searchTerm);
-        List<Component> communityComponents = searchCommunity(searchTerm);
-        List<Component> supplementComponents = searchSupplement(searchTerm);
-
-        //combine the results and sort on name, then Classification
-        List<Component> results = Stream.of(mediaComponents, batchComponents, communityComponents, supplementComponents)
-                .flatMap(Collection::stream)
-                .sorted(Comparator.comparing(Component::getName).thenComparing(Component::getClassification))
-                .collect(Collectors.toList());
+        var results = Stream.of(mediaComponents, batchComponents, communityComponents, supplementComponents)
+                            //wait for all the futures to complete
+                            .map(CompletableFuture::join)
+                            //make a combined stream of components
+                            .flatMap(Collection::stream)
+                            //sort by name and then by classification
+                            .sorted(Comparator.comparing(Component::getName)
+                                    .thenComparing(Component::getClassification))
+                            .collect(Collectors.toList());
 
         //return the results
         return ResponseEntity.ok(results);
