@@ -9,11 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,8 +22,8 @@ public class JarvisResource {
     private KaptureClient<Community> communityKaptureClient;
     private KaptureClient<Supplement> supplementKaptureClient;
 
-    public static final String microLiter = "\u00B5L";
-    public static final String microGram = "\u00B5g";
+    private static final String microLiter = "\u00B5L";
+    private static final String microGram = "\u00B5g";
 
     public JarvisResource(KaptureClient<Media> mediaKaptureClient, KaptureClient<Batch> batchKaptureClient, KaptureClient<Community> communityKaptureClient, KaptureClient<Supplement> supplementKaptureClient) {
         this.mediaKaptureClient = mediaKaptureClient;
@@ -54,15 +50,16 @@ public class JarvisResource {
 
 
         //search a bunch of endpoints
-        //todo these can all be called asynchronously and the results collected together
+        //todo these could all be called asynchronously and the results collected together
         List<Component> mediaComponents = searchMedia(searchTerm);
         List<Component> batchComponents = searchBatch(searchTerm);
         List<Component> communityComponents = searchCommunity(searchTerm);
         List<Component> supplementComponents = searchSupplement(searchTerm);
 
-        //combine the results
+        //combine the results and sort on name, then Classification
         List<Component> results = Stream.of(mediaComponents, batchComponents, communityComponents, supplementComponents)
                 .flatMap(Collection::stream)
+                .sorted(Comparator.comparing(Component::getName).thenComparing(Component::getClassification))
                 .collect(Collectors.toList());
 
         //return the results
@@ -84,16 +81,17 @@ public class JarvisResource {
                                     .stream()
                                     .map(BatchAlias::getAlias)
                                     .collect(Collectors.joining(",")))
-                            //todo determine what fields should be in the tool tip
                             .toolTip(Map.of(
                                     "Notebook", batch.getNotebook(),
                                     "Glycan Composition", batch.getGlycanComposition(),
                                     "Mw", batch.getMw(),
                                     "AveDP", batch.getAveDP(),
-                                    "Concepts", batch.getConcepts().stream().map(ChemicalConcept::getConceptId)
+                                    "Concepts", batch.getConcepts().stream()
+                                            .map(ChemicalConcept::getConceptId)
+                                            .collect(Collectors.joining(","))
                                     )
                             )
-                            .allowedUnits(List.of("%", "mL", microLiter)) //todo confirm these units
+                            .allowedUnits(List.of(microLiter, "mL", "%"))
                             .build())
                     .collect(Collectors.toList());
 
@@ -116,9 +114,8 @@ public class JarvisResource {
                             .toolTip(Map.of(
                                     "BSI Name", community.getBsiName(),
                                     "Description", community.getDescription()
-                                    //todo more mapping??
                             ))
-                            .allowedUnits(List.of("%", "mL", microLiter)) //todo confirm these units
+                            .allowedUnits(List.of(microLiter, "mL", "%"))
                             .build()
                     )
                     .collect(Collectors.toList());
@@ -134,18 +131,19 @@ public class JarvisResource {
         if(supplementResponse.getStatusCode().is2xxSuccessful() && supplementResponse.getBody() != null){
             //map the responses to a Component
             return supplementResponse.getBody().stream()
-                    .map(supplement -> {
-                        return Component.builder()
+                    .map(supplement -> Component.builder()
                             .id(supplement.getId())
                             .classification("Supplement")
                             .classificationSymbol("S")
                             .name(supplement.getName())
                             .altName("")
-                            .allowedUnits(List.of(microGram,"mg","g")) //todo check these
-                            .toolTip(Map.of("Supplement class", supplement.getClassification(), "", supplement.getDescription())) //todo confirm this
-                            .build();
-
-                    })
+                            .allowedUnits(List.of(microGram,"mg","g"))
+                            .toolTip(Map.of(
+                                    "Supplement class", supplement.getClassification(),
+                                    "Description", supplement.getDescription()
+                            ))
+                            .build()
+                    )
                     .collect(Collectors.toList());
 
         } else {
@@ -158,11 +156,20 @@ public class JarvisResource {
         if(mediaResponse.getStatusCode().is2xxSuccessful() && mediaResponse.getBody() != null){
             //map the responses to a Component
             return mediaResponse.getBody().stream()
-                    .map(media -> {
-                        Component component = new Component();
-                        //todo more mapping required maybe in a mapper class
-                        return component;
-                    })
+                    .map(media -> Component.builder()
+                            .id(media.getId())
+                            .classification("Media")
+                            .classificationSymbol("M")
+                            .name(media.getName())
+                            .altName("")
+                            .allowedUnits(List.of(microLiter, "mL", "%"))
+                            .toolTip(Map.of(
+                                    "Base Media", media.getBaseMedia().getName(),
+                                    "Description", media.getDescription(),
+                                    "pH", media.getPh()
+                            ))
+                            .build()
+                    )
                     .collect(Collectors.toList());
 
         } else {
