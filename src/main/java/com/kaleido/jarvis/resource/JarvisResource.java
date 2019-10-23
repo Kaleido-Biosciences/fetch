@@ -1,8 +1,9 @@
-package com.kaleidobio.jarvis.resource;
+package com.kaleido.jarvis.resource;
 
 import com.kaleido.kaptureclient.client.KaptureClient;
 import com.kaleido.kaptureclient.domain.*;
-import com.kaleidobio.jarvis.domain.Component;
+import com.kaleido.jarvis.domain.Component;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/jarvis")
+@Slf4j
 public class JarvisResource {
 
     private KaptureClient<Media> mediaKaptureClient;
@@ -40,6 +42,7 @@ public class JarvisResource {
 
     @GetMapping("/components/search/{searchTerm}")
     public ResponseEntity<List<Component>> searchComponents(@PathVariable String searchTerm){
+        log.debug("call to /components/search/{}", searchTerm);
         //add asterisks to the searchTerm if they are not already there
         if(! searchTerm.startsWith("*")){
             searchTerm = "*"+searchTerm;
@@ -51,6 +54,7 @@ public class JarvisResource {
 
         //search a bunch of endpoints in parallel
         final String finalSearchTerm = searchTerm;
+        log.debug("expanded search term to {}", searchTerm);
         var mediaComponents = CompletableFuture.supplyAsync(() -> searchMedia(finalSearchTerm));
         var batchComponents = CompletableFuture.supplyAsync(() -> searchBatch(finalSearchTerm));
         var communityComponents = CompletableFuture.supplyAsync(() -> searchCommunity(finalSearchTerm));
@@ -67,6 +71,7 @@ public class JarvisResource {
                             .collect(Collectors.toList());
 
         //return the results
+        log.debug("Combined results: {}", results);
         return ResponseEntity.ok(results);
     }
 
@@ -81,18 +86,20 @@ public class JarvisResource {
                             .classificationSymbol("Cpd")
                             .id(batch.getId())
                             .name(batch.getName())
-                            .altName(batch.getAliases()
+                            .altName(Optional.ofNullable(
+                                    batch.getAliases()
                                     .stream()
                                     .map(BatchAlias::getAlias)
-                                    .collect(Collectors.joining(",")))
+                                    .collect(Collectors.joining(","))).orElse(""))
                             .toolTip(Map.of(
-                                    "Notebook", batch.getNotebook(),
-                                    "Glycan Composition", batch.getGlycanComposition(),
-                                    "Mw", batch.getMw(),
-                                    "AveDP", batch.getAveDP(),
-                                    "Concepts", batch.getConcepts().stream()
-                                            .map(ChemicalConcept::getConceptId)
-                                            .collect(Collectors.joining(","))
+                                    "Notebook", Optional.ofNullable(batch.getNotebook()),
+                                    "Glycan Composition", Optional.ofNullable(batch.getGlycanComposition()),
+                                    "Mw", Optional.ofNullable(batch.getMw()),
+                                    "AveDP", Optional.ofNullable(batch.getAveDP()),
+                                    "Concepts", Optional.ofNullable(
+                                            batch.getConcepts().stream()
+                                                    .map(ChemicalConcept::getConceptId)
+                                                    .collect(Collectors.joining(",")))
                                     )
                             )
                             .allowedUnits(List.of(microLiter, "mL", "%"))
@@ -116,8 +123,8 @@ public class JarvisResource {
                             .name(community.getName())
                             .altName(community.getAlias())
                             .toolTip(Map.of(
-                                    "BSI Name", community.getBsiName(),
-                                    "Description", community.getDescription()
+                                    "BSI Name", Optional.ofNullable(community.getBsiName()),
+                                    "Description", Optional.ofNullable(community.getDescription())
                             ))
                             .allowedUnits(List.of(microLiter, "mL", "%"))
                             .build()
@@ -143,8 +150,8 @@ public class JarvisResource {
                             .altName("")
                             .allowedUnits(List.of(microGram,"mg","g"))
                             .toolTip(Map.of(
-                                    "Supplement class", supplement.getClassification(),
-                                    "Description", supplement.getDescription()
+                                    "Supplement class", Optional.ofNullable(supplement.getClassification()),
+                                    "Description", Optional.ofNullable(supplement.getDescription())
                             ))
                             .build()
                     )
@@ -168,9 +175,9 @@ public class JarvisResource {
                             .altName("")
                             .allowedUnits(List.of(microLiter, "mL", "%"))
                             .toolTip(Map.of(
-                                    "Base Media", media.getBaseMedia().getName(),
-                                    "Description", media.getDescription(),
-                                    "pH", media.getPh()
+                                    "Base Media", Optional.ofNullable(media.getBaseMedia() != null ? media.getBaseMedia().getName() : null),
+                                    "Description", Optional.ofNullable(media.getDescription()),
+                                    "pH", Optional.ofNullable(media.getPh())
                             ))
                             .build()
                     )
