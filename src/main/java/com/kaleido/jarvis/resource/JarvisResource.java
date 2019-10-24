@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RestController
-@RequestMapping("/jarvis")
+@RequestMapping("/")
 @Slf4j
 public class JarvisResource {
 
