@@ -60,6 +60,7 @@ setup_environment:
   allow_failure: true
   only:
     - master
+    - develop
   before_script:
     - ls
   script:
