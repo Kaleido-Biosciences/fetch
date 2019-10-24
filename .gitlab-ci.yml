@@ -1,0 +1,213 @@
+#include:
+#    template: SAST.gitlab-ci.yml
+
+image: openjdk:11
+
+cache:
+    key: "$CI_COMMIT_REF_NAME"
+    paths:
+        - .maven
+stages:
+    - build
+    - package
+    - test
+    - setup
+    - cleanup
+    - deploy
+
+maven-build:
+    stage: build
+    before_script:
+        - chmod +x mvnw
+    script:
+        - ./mvnw compile -DskipTests
+        - ./mvnw package
+    artifacts:
+        paths:
+            - target/*.jar
+        # Uncomment following to expire the artifacts after defined period, https://docs.gitlab.com/ee/ci/yaml/README.html#artifacts-expire_in
+        expire_in: 90 day
+
+
+image_build:
+  image: docker:git
+  stage: package
+  before_script:
+     - ls
+  only:
+    - master
+    - develop
+  services:
+    - docker:dind
+  script:
+    - cp src/main/docker/* .
+    - ls
+    - docker info
+    - docker login -u "${CI_REGISTRY_USER}" -p "${CI_REGISTRY_PASSWORD}" "${CI_REGISTRY}"
+    - docker build -t "${CI_REGISTRY_IMAGE}:latest" .
+    - docker tag "${CI_REGISTRY_IMAGE}:latest" "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}"
+    - test ! -z "${CI_COMMIT_TAG}" && docker push "${CI_REGISTRY_IMAGE}:latest"
+    - docker push "${CI_REGISTRY_IMAGE}:${CI_COMMIT_REF_NAME}"
+
+# May fail if the secret already exists
+# Only need one setup per namespace, so we do this in master only
+setup_environment:
+  image: ryarnyah/kubectl-aws
+  stage: setup
+  environment:
+    name: live
+    url: http://$CI_PROJECT_NAME.apps.kaleidobio.com
+  allow_failure: true
+  only:
+    - master
+  before_script:
+    - ls
+  script:
+    - kubectl version
+
+    # Setting up the namespace & permissions
+    - cd gitlab-ci/
+    - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" namespace.yaml rbac.yaml
+    - sed -i "s/__VERSION__/${CI_COMMIT_REF_NAME}/" namespace.yaml rbac.yaml
+    - sed -i "s/__CI_PROJ_NAME__/${CI_PROJECT_NAME}/" namespace.yaml rbac.yaml
+    - kubectl apply -f namespace.yaml
+    - kubectl apply -f rbac.yaml
+
+    # Docker Registry secret is needed to be able to pull images
+    # Will probably already be in there, we have had issues with this not propertly creating the regsecret
+    - kubectl create secret docker-registry regsecret --docker-server=${CI_REGISTRY} --docker-username=${CI_REGISTRY_USER} --docker-password=${CI_REGISTRY_PASSWORD} --docker-email=wesley.fowlks@kaleido.com --namespace ${CI_PROJECT_NAME}
+
+teardown_staging:
+    image: ryarnyah/kubectl-aws
+    stage: cleanup
+    allow_failure: true
+    environment:
+        name: staging
+        url: https://$CI_PROJECT_NAME-staging.apps.kaleidobio.com
+    only:
+        - develop
+    before_script:
+        - ls
+    script:
+
+        - kubectl version
+
+        # Build the manifests
+        - cd manifests/
+        - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" deployment.yaml service.yaml
+        - sed -i "s/__SERVER_PORT__/8080/" deployment.yaml service.yaml
+        - sed -i "s/__VERSION__/${CI_COMMIT_REF_NAME}/" deployment.yaml service.yaml
+        - sed -i "s/__CI_PROJ_NAME__/${CI_PROJECT_NAME}/" deployment.yaml service.yaml
+        - sed -i "s/__CI_PROJECT_NAMESPACE__/${CI_PROJECT_NAMESPACE}/" deployment.yaml
+        - sed -i "s/__CI_PROJECT_NAME__/${CI_PROJECT_NAME}/" deployment.yaml
+        - sed -i "s/__URL__/${CI_PROJECT_NAME}-staging/" ingress.yaml deployment.yaml
+        - cat deployment.yaml
+        - cat service.yaml
+
+        # Cleanup old services to make sure new docker containers are pulled
+        - kubectl delete -f deployment.yaml
+        - kubectl delete -f service.yaml
+
+deploy_staging:
+    image: ryarnyah/kubectl-aws
+    stage: deploy
+    environment:
+        name: staging
+        url: https://$CI_PROJECT_NAME-staging.apps.kaleidobio.com
+    only:
+        - develop
+    before_script:
+        - ls
+    script:
+
+        - kubectl version
+
+        # Build the manifests
+        - cd manifests/
+        - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" deployment.yaml ingress.yaml service.yaml
+        - sed -i "s/__SERVER_PORT__/8080/" deployment.yaml ingress.yaml service.yaml
+        - sed -i "s/__VERSION__/${CI_COMMIT_REF_NAME}/" deployment.yaml ingress.yaml service.yaml
+        - sed -i "s/__CI_PROJ_NAME__/${CI_PROJECT_NAME}/" deployment.yaml ingress.yaml service.yaml
+        - sed -i "s/__CI_PROJECT_NAMESPACE__/${CI_PROJECT_NAMESPACE}/" deployment.yaml
+        - sed -i "s/__CI_PROJECT_NAME__/${CI_PROJECT_NAME}/" deployment.yaml
+        - sed -i 's/__DATADOG_ENABLED__/"false"/' deployment.yaml
+        - sed -i "s/__DATADOG_API_KEY__/${datadog_api_key}/" deployment.yaml
+        - sed -i "s/__DATADOG_APPLICATION_KEY__/${datadog_application_key}/" deployment.yaml
+        - sed -i "s/__URL__/${CI_PROJECT_NAME}-staging/" ingress.yaml deployment.yaml
+        - cat deployment.yaml
+        - cat ingress.yaml
+        - cat service.yaml
+
+        # Prepare for liftoff
+        - kubectl apply -f deployment.yaml
+        - kubectl apply -f service.yaml
+        - kubectl apply -f ingress.yaml
+        - kubectl rollout status -f deployment.yaml
+        - kubectl get all,ing -l ref=${CI_ENVIRONMENT_SLUG}
+
+teardown_live:
+  image: ryarnyah/kubectl-aws
+  stage: cleanup
+  allow_failure: true
+  environment:
+    name: live
+    url: https://$CI_PROJECT_NAME.apps.kaleidobio.com
+  only:
+    - master
+  before_script:
+    - ls
+  script:
+    - kubectl version
+
+    # Build the manifests
+    - cd manifests/
+    - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" deployment.yaml service.yaml
+    - sed -i "s/__SERVER_PORT__/8080/" deployment.yaml service.yaml
+    - sed -i "s/__VERSION__/${CI_COMMIT_REF_NAME}/" deployment.yaml service.yaml
+    - sed -i "s/__CI_PROJ_NAME__/${CI_PROJECT_NAME}/" deployment.yaml service.yaml
+    - sed -i "s/__CI_PROJECT_NAMESPACE__/${CI_PROJECT_NAMESPACE}/" deployment.yaml
+    - sed -i "s/__CI_PROJECT_NAME__/${CI_PROJECT_NAME}/" deployment.yaml
+    - sed -i "s/__URL__/${CI_PROJECT_NAME}/" ingress.yaml deployment.yaml
+    - cat deployment.yaml
+    - cat service.yaml
+
+    # Cleanup old services to make sure new docker containers are pulled
+    - kubectl delete -f deployment.yaml
+    - kubectl delete -f service.yaml
+
+
+deploy_live:
+  image: ryarnyah/kubectl-aws
+  stage: deploy
+  environment:
+    name: live
+    url: https://$CI_PROJECT_NAME.apps.kaleidobio.com
+  only:
+    - master
+  before_script:
+    - ls
+  script:
+    - kubectl version
+
+    # Build the manifests
+    - cd manifests/
+    - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" deployment.yaml ingress.yaml service.yaml
+    - sed -i "s/__SERVER_PORT__/8080/" deployment.yaml ingress.yaml service.yaml
+    - sed -i "s/__VERSION__/${CI_COMMIT_REF_NAME}/" deployment.yaml ingress.yaml service.yaml
+    - sed -i "s/__CI_PROJ_NAME__/${CI_PROJECT_NAME}/" deployment.yaml ingress.yaml service.yaml
+    - sed -i "s/__CI_PROJECT_NAMESPACE__/${CI_PROJECT_NAMESPACE}/" deployment.yaml
+    - sed -i "s/__CI_PROJECT_NAME__/${CI_PROJECT_NAME}/" deployment.yaml
+    - sed -i 's/__DATADOG_ENABLED__/"true"/' deployment.yaml
+    - sed -i "s/__DATADOG_API_KEY__/${datadog_api_key}/" deployment.yaml
+    - sed -i "s/__DATADOG_APPLICATION_KEY__/${datadog_application_key}/" deployment.yaml
+    - sed -i "s/__URL__/${CI_PROJECT_NAME}/" ingress.yaml deployment.yaml
+    - cat deployment.yaml
+    - cat ingress.yaml
+    - cat service.yaml
+
+    # Prepare for liftoff
+    - kubectl apply -f deployment.yaml
+    - kubectl apply -f service.yaml
+    - kubectl apply -f ingress.yaml
+    - kubectl rollout status -f deployment.yaml
+    - kubectl get all,ing -l ref=${CI_ENVIRONMENT_SLUG}
