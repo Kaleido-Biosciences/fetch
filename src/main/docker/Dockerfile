@@ -1,4 +1,4 @@
-FROM openjdk:11.0-jre
+FROM openjdk:13-alpine3.9
 
 ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
     JAVA_OPTS=""
