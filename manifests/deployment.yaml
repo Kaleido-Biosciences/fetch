@@ -29,14 +29,12 @@ spec:
         image: gitlab.kaleidobio.com:5005/__CI_PROJECT_NAMESPACE__/__CI_PROJECT_NAME__:__VERSION__
         imagePullPolicy: Always
         env:
-        - name: db_password
-          value: __DB_PASSWORD__
-        - name: email_password
-          value: __EMAIL_PASSWORD__
-        - name: db_url
-          value: __DB_URL__
-        - name: elasticsearch_url
-          value: __ELASTICSEARCH_URL__
+        - name: KAPTURE_CLIENT_PASSWORD
+          value: __KAPTURE_CLIENT_PASSWORD__
+        - name: KAPTURE_CLIENT_USERNAME
+          value: __KAPTURE_CLIENT_USERNAME__
+        - name: KAPTURE_CLIENT_URL
+          value: __KAPTURE_CLIENT_URL__
         - name: MANAGEMENT_METRICS_EXPORT_DATADOG_ENABLED
           value: __DATADOG_ENABLED__
         - name: MANAGEMENT_METRICS_EXPORT_DATADOG_API-KEY
