@@ -137,6 +137,7 @@ deploy_staging:
         - sed -i "s/__URL__/${CI_PROJECT_NAME}-staging/" ingress.yaml deployment.yaml
         - sed -i "s/__KAPTURE_CLIENT_PASSWORD__/${KAPTURE_CLIENT_PASSWORD}/" deployment.yaml
         - sed -i "s/__KAPTURE_CLIENT_USERNAME__/${KAPTURE_CLIENT_USERNAME}/" deployment.yaml
+        - sed -i "s/__KAPTURE_CLIENT_URL__/${KAPTURE_CLIENT_URL}/" deployment.yaml
         - cat deployment.yaml
         - cat ingress.yaml
         - cat service.yaml
@@ -206,6 +207,7 @@ deploy_live:
     - sed -i "s/__URL__/${CI_PROJECT_NAME}/" ingress.yaml deployment.yaml
     - sed -i "s/__KAPTURE_CLIENT_PASSWORD__/${KAPTURE_CLIENT_PASSWORD}/" deployment.yaml
     - sed -i "s/__KAPTURE_CLIENT_USERNAME__/${KAPTURE_CLIENT_USERNAME}/" deployment.yaml
+    - sed -i "s/__KAPTURE_CLIENT_URL__/${KAPTURE_CLIENT_URL}/" deployment.yaml
     - cat deployment.yaml
     - cat ingress.yaml
     - cat service.yaml
