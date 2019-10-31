@@ -43,6 +43,9 @@ public class JarvisResource {
     @GetMapping("/components/search/{searchTerm}")
     public ResponseEntity<List<Component>> searchComponents(@PathVariable String searchTerm){
         log.debug("call to /components/search/{}", searchTerm);
+
+        final String originalSearchTerm = searchTerm;
+
         //add asterisks to the searchTerm if they are not already there
         if(! searchTerm.startsWith("*")){
             searchTerm = "*"+searchTerm;
@@ -53,22 +56,39 @@ public class JarvisResource {
 
 
         //search a bunch of endpoints in parallel
-        final String finalSearchTerm = searchTerm;
-        log.debug("expanded search term to {}", searchTerm);
-        var mediaComponents = CompletableFuture.supplyAsync(() -> searchMedia(finalSearchTerm));
-        var batchComponents = CompletableFuture.supplyAsync(() -> searchBatch(finalSearchTerm));
-        var communityComponents = CompletableFuture.supplyAsync(() -> searchCommunity(finalSearchTerm));
-        var supplementComponents = CompletableFuture.supplyAsync(() -> searchSupplement(finalSearchTerm));
+        final String elasticSearchTerm = searchTerm;
+        log.debug("Expanded search term to elastic search term {}", searchTerm);
+        var mediaComponents = CompletableFuture.supplyAsync(() -> searchMedia(originalSearchTerm));
+        var batchComponents = CompletableFuture.supplyAsync(() -> searchBatch(elasticSearchTerm));
+        var communityComponents = CompletableFuture.supplyAsync(() -> searchCommunity(originalSearchTerm));
+        var supplementComponents = CompletableFuture.supplyAsync(() -> searchSupplement(originalSearchTerm));
 
-        var results = Stream.of(mediaComponents, batchComponents, communityComponents, supplementComponents)
+        var matches = Stream.of(mediaComponents, batchComponents, communityComponents, supplementComponents)
                             //wait for all the futures to complete
                             .map(CompletableFuture::join)
                             //make a combined stream of components
                             .flatMap(Collection::stream)
-                            //sort by name and then by classification
-                            .sorted(Comparator.comparing(Component::getName)
-                                    .thenComparing(Component::getClassification))
-                            .collect(Collectors.toList());
+                            //make a boolean make with two lists, those that have an exact match and those that don't
+                            .collect(Collectors.partitioningBy(component -> component.getName().equals(originalSearchTerm)));
+        //sort the matches that are not exact
+        List<Component> sortedNonExactMatches = matches.get(false).stream()
+                .sorted(Comparator.comparing(Component::getName)
+                        .thenComparing(Component::getClassification))
+                .collect(Collectors.toList());
+
+        log.debug("Sorted non-exact matches {}", sortedNonExactMatches);
+
+        //sort any exact matches by classification only
+        List<Component> sortedExactMatches = matches.get(true).stream()
+                .sorted(Comparator.comparing(Component::getClassification))
+                .collect(Collectors.toList());
+
+        log.debug("Sorted exact matches: {}", sortedExactMatches);
+
+        //combine the exact and non-exact matches
+        List<Component> results = Stream.of(sortedExactMatches, sortedNonExactMatches)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
 
         //return the results
         log.debug("Combined results: {}", results);
@@ -112,7 +132,7 @@ public class JarvisResource {
     }
 
     private List<Component> searchCommunity(String searchTerm) {
-        final var communityResponse = communityKaptureClient.search(searchTerm);
+        final var communityResponse = communityKaptureClient.findByFieldWithOperator("name", searchTerm, "contains");
 
         if(communityResponse.getStatusCode().is2xxSuccessful() && communityResponse.getBody() != null){
             //map the responses to a Component
@@ -137,7 +157,7 @@ public class JarvisResource {
     }
 
     private List<Component> searchSupplement(String searchTerm) {
-        final var supplementResponse = supplementKaptureClient.search(searchTerm);
+        final var supplementResponse = supplementKaptureClient.findByFieldWithOperator("name", searchTerm, "contains");
 
         if(supplementResponse.getStatusCode().is2xxSuccessful() && supplementResponse.getBody() != null){
             //map the responses to a Component
@@ -163,7 +183,7 @@ public class JarvisResource {
     }
 
     private List<Component> searchMedia(String searchTerm) {
-        final var mediaResponse = mediaKaptureClient.search(searchTerm);
+        final var mediaResponse = mediaKaptureClient.findByFieldWithOperator("name", searchTerm, "contains");
         if(mediaResponse.getStatusCode().is2xxSuccessful() && mediaResponse.getBody() != null){
             //map the responses to a Component
             return mediaResponse.getBody().stream()
