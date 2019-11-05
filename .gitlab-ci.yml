@@ -25,9 +25,6 @@ maven-build:
     artifacts:
         paths:
             - target/*.jar
-        # Uncomment following to expire the artifacts after defined period, https://docs.gitlab.com/ee/ci/yaml/README.html#artifacts-expire_in
-        expire_in: 90 day
-
 
 image_build:
   image: docker:git
