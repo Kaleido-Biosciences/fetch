@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.kaleidobio</groupId>
     <artifactId>jarvis</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <name>jarvis</name>
     <description>Endpoint for Atlas that looks up components</description>
 
