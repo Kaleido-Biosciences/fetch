@@ -1,4 +1,4 @@
-package com.kaleido.jarvis.domain;
+package com.kaleido.fetch.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
