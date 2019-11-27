@@ -1,4 +1,4 @@
-package com.kaleido.jarvis.resource;
+package com.kaleido.fetch.resource;
 
 import com.kaleido.kaptureclient.client.KaptureClient;
 import com.kaleido.kaptureclient.domain.Experiment;
