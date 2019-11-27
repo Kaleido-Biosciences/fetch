@@ -28,9 +28,9 @@ public class ActivityResource {
         this.experimentKaptureClient = experimentKaptureClient;
     }
 
-    @GetMapping("/experiments/search/{searchTerm}")
+    @GetMapping("/search/{searchTerm}")
     public ResponseEntity<List<Experiment>> searchExperiments(@PathVariable String searchTerm) {
-        log.debug("call to /activities/experiments/search/{}", searchTerm);
+        log.debug("call to /activities/search/{}", searchTerm);
 
         final String originalSearchTerm = searchTerm;
 
