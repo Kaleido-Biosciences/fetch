@@ -1,8 +1,8 @@
-package com.kaleido.jarvis.resource;
+package com.kaleido.fetch.resource;
 
 import com.kaleido.kaptureclient.client.KaptureClient;
 import com.kaleido.kaptureclient.domain.*;
-import com.kaleido.jarvis.domain.Component;
+import com.kaleido.fetch.domain.Component;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 @RestController
 @RequestMapping("/")
 @Slf4j
-public class JarvisResource {
+public class FetchResource {
 
     private KaptureClient<Media> mediaKaptureClient;
     private KaptureClient<Batch> batchKaptureClient;
@@ -27,7 +27,7 @@ public class JarvisResource {
     private static final String microLiter = "\u00B5L";
     private static final String microGram = "\u00B5g";
 
-    public JarvisResource(KaptureClient<Media> mediaKaptureClient, KaptureClient<Batch> batchKaptureClient, KaptureClient<Community> communityKaptureClient, KaptureClient<Supplement> supplementKaptureClient) {
+    public FetchResource(KaptureClient<Media> mediaKaptureClient, KaptureClient<Batch> batchKaptureClient, KaptureClient<Community> communityKaptureClient, KaptureClient<Supplement> supplementKaptureClient) {
         this.mediaKaptureClient = mediaKaptureClient;
         this.batchKaptureClient = batchKaptureClient;
         this.communityKaptureClient = communityKaptureClient;
