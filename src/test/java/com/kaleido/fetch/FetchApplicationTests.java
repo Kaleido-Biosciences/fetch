@@ -1,10 +1,10 @@
-package com.kaleido.jarvis;
+package com.kaleido.fetch;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class JarvisApplicationTests {
+class FetchApplicationTests {
 
     @Test
     void contextLoads() {
