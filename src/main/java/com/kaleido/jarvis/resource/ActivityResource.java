@@ -29,7 +29,7 @@ public class ActivityResource {
     }
 
     @GetMapping("/search/{searchTerm}")
-    public ResponseEntity<List<Experiment>> searchExperiments(@PathVariable String searchTerm) {
+    public ResponseEntity<List<Experiment>> searchActivities(@PathVariable String searchTerm) {
         log.debug("call to /activities/search/{}", searchTerm);
 
         final String originalSearchTerm = searchTerm;
