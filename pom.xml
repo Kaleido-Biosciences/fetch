@@ -30,7 +30,7 @@
         <dependency>
             <groupId>com.kaleido</groupId>
             <artifactId>kapture-client</artifactId>
-            <version>3.2.4</version>
+            <version>3.2.18</version>
         </dependency>
 
 
@@ -38,13 +38,11 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
             <version>2.9.2</version>
-<!--            <scope>compile</scope>-->
         </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
             <version>2.9.2</version>
-<!--            <scope>compile</scope>-->
         </dependency>
 
         <dependency>
@@ -76,9 +74,9 @@
 
     <repositories>
         <repository>
-            <id>kaleido-internal</id>
-            <name>Kaleido Nexus Repository</name>
-            <url>https://nexus.apps.kaleidobio.com/repository/maven-releases-s3/</url>
+            <id>github</id>
+            <name>Kaleido GitHub Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/Kaleido-Biosciences/kapture-client</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
