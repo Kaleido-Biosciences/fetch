@@ -72,15 +72,4 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>github</id>
-            <name>Kaleido GitHub Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/Kaleido-Biosciences/kapture-client</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-    </repository>
-    </repositories>
-
 </project>
