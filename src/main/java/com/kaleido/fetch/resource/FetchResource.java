@@ -1,31 +1,51 @@
 package com.kaleido.fetch.resource;
 
-import com.kaleido.kaptureclient.client.KaptureClient;
-import com.kaleido.kaptureclient.domain.*;
 import com.kaleido.fetch.domain.Component;
+import com.kaleido.kaptureclient.client.KaptureClient;
+import com.kaleido.kaptureclient.domain.Batch;
+import com.kaleido.kaptureclient.domain.BatchAlias;
+import com.kaleido.kaptureclient.domain.ChemicalConcept;
+import com.kaleido.kaptureclient.domain.Community;
+import com.kaleido.kaptureclient.domain.Media;
+import com.kaleido.kaptureclient.domain.Supplement;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+@Api("Fetch Operations")
 @RestController
 @RequestMapping("/")
 @Slf4j
 public class FetchResource {
 
+    private static final int URI_BATCH_SIZE = 50;
+    private static final String microLiter = "\u00B5L";
+    private static final String microGram = "\u00B5g";
     private KaptureClient<Media> mediaKaptureClient;
     private KaptureClient<Batch> batchKaptureClient;
     private KaptureClient<Community> communityKaptureClient;
     private KaptureClient<Supplement> supplementKaptureClient;
-    
-    private static final int URI_BATCH_SIZE = 50;
-    private static final String microLiter = "\u00B5L";
-    private static final String microGram = "\u00B5g";
 
     public FetchResource(KaptureClient<Media> mediaKaptureClient, KaptureClient<Batch> batchKaptureClient, KaptureClient<Community> communityKaptureClient, KaptureClient<Supplement> supplementKaptureClient) {
         this.mediaKaptureClient = mediaKaptureClient;
@@ -34,11 +54,20 @@ public class FetchResource {
         this.supplementKaptureClient = supplementKaptureClient;
     }
 
+    @ApiOperation(value = "Return if it is alive")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = String.class)
+    })
     @GetMapping("/health")
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Alive");
     }
 
+    @ApiOperation(value = "Finds Components by text string to match on")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Component[].class),
+            @ApiResponse(code = 400, message = "Invalid status value")
+    })
     @GetMapping("/components/search/{searchTerm}")
     public ResponseEntity<List<Component>> searchComponents(@PathVariable String searchTerm) {
         log.debug("call to /components/search/{}", searchTerm);
@@ -94,10 +123,14 @@ public class FetchResource {
         return ResponseEntity.ok(results);
     }
 
+    @ApiOperation(value = "Finds Components by classification and id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Component[].class),
+            @ApiResponse(code = 400, message = "Invalid status value")
+    })
     @PostMapping("/components/find")
     public ResponseEntity<List<Component>> getComponentsByClassificationAndId(@RequestBody List<Component> searchComponents) {
         log.debug("call to /components/find : {}", searchComponents);
-
 
         var mediaComponents = CompletableFuture.supplyAsync(() -> searchMediaByIds(
                 searchComponents.stream()
@@ -137,7 +170,6 @@ public class FetchResource {
         log.debug("Sorted matches {}", results);
 
         return ResponseEntity.ok(results);
-
     }
 
     private List<Component> searchMediaByIds(List<Long> mediaIds) {
@@ -312,9 +344,9 @@ public class FetchResource {
                 .altName(Optional.ofNullable(
                         batch.getAliases() == null ? null :
                                 batch.getAliases()
-                                .stream()
-                                .map(BatchAlias::getAlias)
-                                .collect(Collectors.joining(","))).orElse(""))
+                                        .stream()
+                                        .map(BatchAlias::getAlias)
+                                        .collect(Collectors.joining(","))).orElse(""))
                 .toolTip(Map.of(
                         "Notebook", Optional.ofNullable(batch.getNotebook()),
                         "Glycan Composition", Optional.ofNullable(batch.getGlycanComposition()),
@@ -322,9 +354,9 @@ public class FetchResource {
                         "AveDP", Optional.ofNullable(batch.getAveDP()),
                         "Concepts", Optional.ofNullable(
                                 batch.getConcepts() == null ? null :
-                                batch.getConcepts().stream()
-                                        .map(ChemicalConcept::getConceptId)
-                                        .collect(Collectors.joining(",")))
+                                        batch.getConcepts().stream()
+                                                .map(ChemicalConcept::getConceptId)
+                                                .collect(Collectors.joining(",")))
                         )
                 )
                 .allowedUnits(List.of(microLiter, "mL", "%"))
