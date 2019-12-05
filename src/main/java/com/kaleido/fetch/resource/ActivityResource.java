@@ -2,6 +2,10 @@ package com.kaleido.fetch.resource;
 
 import com.kaleido.kaptureclient.client.KaptureClient;
 import com.kaleido.kaptureclient.domain.Experiment;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +21,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Api("Activities Operations")
 @RestController
 @RequestMapping("/activities")
 @Slf4j
@@ -28,6 +33,11 @@ public class ActivityResource {
         this.experimentKaptureClient = experimentKaptureClient;
     }
 
+    @ApiOperation(value = "Finds Activities by text string to match on")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Experiment[].class),
+            @ApiResponse(code = 400, message = "Invalid status value")
+    })
     @GetMapping("/search/{searchTerm}")
     public ResponseEntity<List<Experiment>> searchActivities(@PathVariable String searchTerm) {
         log.debug("call to /activities/search/{}", searchTerm);
