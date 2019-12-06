@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.kaleidobio</groupId>
     <artifactId>fetch</artifactId>
-    <version>0.0.4</version>
+    <version>0.0.5</version>
     <name>fetch</name>
     <description>Endpoint for Atlas that looks up components</description>
 
