@@ -35,6 +35,8 @@ spec:
           value: __KAPTURE_CLIENT_USERNAME__
         - name: KAPTURE_CLIENT_URL
           value: __KAPTURE_CLIENT_URL__
+        - name: FETCH_URL
+          value: __FETCH_URL__
         - name: MANAGEMENT_METRICS_EXPORT_DATADOG_ENABLED
           value: __DATADOG_ENABLED__
         - name: MANAGEMENT_METRICS_EXPORT_DATADOG_API-KEY
