@@ -1,6 +1,21 @@
-     ____.                  .__
-    |    |____ __________  _|__| ______
-    |    \__  \\_  __ \  \/ /  |/  ___/
-/\__|    |/ __ \|  | \/\   /|  |\___ \
-\________(____  /__|    \_/ |__/____  >
-              \/                    \/ 
+
+
+FFFFFFFFFFFFFFFFFFFFFF                          tttt                             hhhhhhh
+F::::::::::::::::::::F                       ttt:::t                             h:::::h
+F::::::::::::::::::::F                       t:::::t                             h:::::h
+FF::::::FFFFFFFFF::::F                       t:::::t                             h:::::h
+  F:::::F       FFFFFF eeeeeeeeeeee    ttttttt:::::ttttttt        cccccccccccccccch::::h hhhhh
+  F:::::F            ee::::::::::::ee  t:::::::::::::::::t      cc:::::::::::::::ch::::hh:::::hhh
+  F::::::FFFFFFFFFF e::::::eeeee:::::eet:::::::::::::::::t     c:::::::::::::::::ch::::::::::::::hh
+  F:::::::::::::::Fe::::::e     e:::::etttttt:::::::tttttt    c:::::::cccccc:::::ch:::::::hhh::::::h
+  F:::::::::::::::Fe:::::::eeeee::::::e      t:::::t          c::::::c     ccccccch::::::h   h::::::h
+  F::::::FFFFFFFFFFe:::::::::::::::::e       t:::::t          c:::::c             h:::::h     h:::::h
+  F:::::F          e::::::eeeeeeeeeee        t:::::t          c:::::c             h:::::h     h:::::h
+  F:::::F          e:::::::e                 t:::::t    ttttttc::::::c     ccccccch:::::h     h:::::h
+FF:::::::FF        e::::::::e                t::::::tttt:::::tc:::::::cccccc:::::ch:::::h     h:::::h
+F::::::::FF         e::::::::eeeeeeee        tt::::::::::::::t c:::::::::::::::::ch:::::h     h:::::h
+F::::::::FF          ee:::::::::::::e          tt:::::::::::tt  cc:::::::::::::::ch:::::h     h:::::h
+FFFFFFFFFFF            eeeeeeeeeeeeee            ttttttttttt      cccccccccccccccchhhhhhh     hhhhhhh
+
+
+
