@@ -2,6 +2,7 @@ package com.kaleido.fetch.config;
 
 import com.google.common.net.HttpHeaders;
 import io.swagger.models.auth.In;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -24,6 +25,9 @@ import java.util.List;
 @EnableSwagger2
 public class SwaggerConfig {
 
+    @Value("${fetch.endpoint}")
+    private String fetchEndpoint;
+
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2)
@@ -36,7 +40,7 @@ public class SwaggerConfig {
                         HttpHeaders.AUTHORIZATION,
                         In.HEADER.name())))
                 .securityContexts(Collections.singletonList(securityContext()))
-                .host("api.kaleidobio.com/jarvis")
+                .host(fetchEndpoint)
                 .apiInfo(metaData());
     }
 
