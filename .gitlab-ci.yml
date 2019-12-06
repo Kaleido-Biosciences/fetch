@@ -19,9 +19,11 @@ maven-build:
     stage: build
     before_script:
         - chmod +x mvnw
+    variables:
+      FETCH_URL: ${FETCH_URL}
     script:
-        - ./mvnw compile -Dspring.profiles.active=prod -DskipTests
-        - ./mvnw package -Dspring.profiles.active=prod
+      - ./mvnw compile -Dspring.profiles.active=prod -DskipTests
+      - ./mvnw package -Dspring.profiles.active=prod
     artifacts:
         paths:
             - target/*.jar
@@ -36,6 +38,8 @@ image_build:
     - develop
   services:
     - docker:dind
+  variables:
+    FETCH_URL: ${FETCH_URL}
   script:
     - cp src/main/docker/* .
     - ls
@@ -135,6 +139,7 @@ deploy_staging:
         - sed -i "s/__KAPTURE_CLIENT_PASSWORD__/${KAPTURE_CLIENT_PASSWORD}/" deployment.yaml
         - sed -i "s/__KAPTURE_CLIENT_USERNAME__/${KAPTURE_CLIENT_USERNAME}/" deployment.yaml
         - sed -i "s/__KAPTURE_CLIENT_URL__/${KAPTURE_CLIENT_URL}/" deployment.yaml
+        - sed -i "s/__FETCH_URL__/${FETCH_URL}/" deployment.yaml
         - cat deployment.yaml
         - cat ingress.yaml
         - cat service.yaml
