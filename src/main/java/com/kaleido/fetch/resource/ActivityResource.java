@@ -6,6 +6,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Slf4j
 @Api("Activities Operations")
 @RestController
 @RequestMapping("/activities")
@@ -32,6 +34,7 @@ public class ActivityResource {
     })
     @GetMapping("/search/{searchTerm}")
     public ResponseEntity<List<Experiment>> searchActivities(@PathVariable String searchTerm) {
+        log.debug("call to /activities/search/{}", searchTerm);
         return ResponseEntity.ok(activityService.findActivities(searchTerm));
     }
 

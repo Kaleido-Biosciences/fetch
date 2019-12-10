@@ -4,7 +4,6 @@ import com.kaleido.kaptureclient.client.KaptureClient;
 import com.kaleido.kaptureclient.domain.Experiment;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,9 +24,7 @@ public class ActivityService {
         this.experimentKaptureClient = experimentKaptureClient;
     }
 
-    public List<Experiment> findActivities(@PathVariable String searchTerm) {
-        log.debug("call to /activities/search/{}", searchTerm);
-
+    public List<Experiment> findActivities(String searchTerm) {
         final String originalSearchTerm = searchTerm;
 
         log.debug("Expanded search term to elastic search term {}", searchTerm);

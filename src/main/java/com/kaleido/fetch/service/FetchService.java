@@ -44,8 +44,6 @@ public class FetchService {
     }
 
     public List<Component> findComponents(String searchTerm) {
-        log.debug("call to /components/search/{}", searchTerm);
-
         final String originalSearchTerm = searchTerm;
 
         //add asterisks to the searchTerm if they are not already there
@@ -100,30 +98,28 @@ public class FetchService {
     }
 
     public List<Component> getComponentsByClassificationAndId(List<Component> searchComponents) {
-        log.debug("call to /components/find : {}", searchComponents);
-
-        var mediaComponents = CompletableFuture.supplyAsync(() -> searchMediaByIds(
+        var mediaComponents = CompletableFuture.supplyAsync(() -> searchByIds(
                 searchComponents.stream()
                         .filter(searchComponent -> searchComponent.getClassification().equalsIgnoreCase("media"))
                         .map(Component::getId)
                         .collect(Collectors.toList())
         ));
 
-        var batchComponents = CompletableFuture.supplyAsync(() -> searchBatchByIds(
+        var batchComponents = CompletableFuture.supplyAsync(() -> searchByIds(
                 searchComponents.stream()
                         .filter(searchComponent -> searchComponent.getClassification().equalsIgnoreCase("batch"))
                         .map(Component::getId)
                         .collect(Collectors.toList())
         ));
 
-        var communityComponents = CompletableFuture.supplyAsync(() -> searchCommunityByIds(
+        var communityComponents = CompletableFuture.supplyAsync(() -> searchByIds(
                 searchComponents.stream()
                         .filter(searchComponent -> searchComponent.getClassification().equalsIgnoreCase("community"))
                         .map(Component::getId)
                         .collect(Collectors.toList())
         ));
 
-        var supplementComponents = CompletableFuture.supplyAsync(() -> searchSupplementByIds(
+        var supplementComponents = CompletableFuture.supplyAsync(() -> searchByIds(
                 searchComponents.stream()
                         .filter(searchComponent -> searchComponent.getClassification().equalsIgnoreCase("supplement"))
                         .map(Component::getId)
@@ -145,55 +141,11 @@ public class FetchService {
         return results;
     }
 
-    private List<Component> searchMediaByIds(List<Long> mediaIds) {
-        List<Component> mediaList = new ArrayList<>();
+    private List<Component> searchByIds(List<Long> ids) {
+        List<Component> list = new ArrayList<>();
 
-        IntStream.range(0, (mediaIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
-                .mapToObj(i -> mediaIds.subList(i * URI_BATCH_SIZE, Math.min(mediaIds.size(), (i + 1) * URI_BATCH_SIZE)))
-                .map(dataBatch -> dataBatch.stream()
-                        .map(Object::toString)
-                        .collect(Collectors.joining(","))
-                ).forEach(queryString -> {
-                    final var mediaResponse = mediaKaptureClient.findByFieldWithOperator("id", queryString, "in");
-                    if (mediaResponse.getStatusCode().is2xxSuccessful() && mediaResponse.getBody() != null) {
-                        //map the responses to a Component
-                        mediaList.addAll(mediaResponse.getBody().stream()
-                                .map(this::buildMediaComponent)
-                                .collect(Collectors.toList()));
-                    }
-                }
-        );
-
-        return mediaList;
-    }
-
-    private List<Component> searchBatchByIds(List<Long> batchIds) {
-        List<Component> batchList = new ArrayList<>();
-
-        IntStream.range(0, (batchIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
-                .mapToObj(i -> batchIds.subList(i * URI_BATCH_SIZE, Math.min(batchIds.size(), (i + 1) * URI_BATCH_SIZE)))
-                .map(dataBatch -> dataBatch.stream()
-                        .map(Object::toString)
-                        .collect(Collectors.joining(","))
-                ).forEach(queryString -> {
-                    final var batchResponse = batchKaptureClient.findByFieldWithOperator("id", queryString, "in");
-                    if (batchResponse.getStatusCode().is2xxSuccessful() && batchResponse.getBody() != null) {
-                        //map the responses to a Component
-                        batchList.addAll(batchResponse.getBody().stream()
-                                .map(this::buildBatchComponent)
-                                .collect(Collectors.toList()));
-                    }
-                }
-        );
-
-        return batchList;
-    }
-
-    private List<Component> searchCommunityByIds(List<Long> communityIds) {
-        List<Component> communityList = new ArrayList<>();
-
-        IntStream.range(0, (communityIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
-                .mapToObj(i -> communityIds.subList(i * URI_BATCH_SIZE, Math.min(communityIds.size(), (i + 1) * URI_BATCH_SIZE)))
+        IntStream.range(0, (ids.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
+                .mapToObj(i -> ids.subList(i * URI_BATCH_SIZE, Math.min(ids.size(), (i + 1) * URI_BATCH_SIZE)))
                 .map(dataBatch -> dataBatch.stream()
                         .map(Object::toString)
                         .collect(Collectors.joining(","))
@@ -201,36 +153,14 @@ public class FetchService {
                     final var communityResponse = communityKaptureClient.findByFieldWithOperator("id", queryString, "in");
                     if (communityResponse.getStatusCode().is2xxSuccessful() && communityResponse.getBody() != null) {
                         //map the responses to a Component
-                        communityList.addAll(communityResponse.getBody().stream()
+                        list.addAll(communityResponse.getBody().stream()
                                 .map(this::buildCommunityComponent)
                                 .collect(Collectors.toList()));
                     }
                 }
         );
 
-        return communityList;
-    }
-
-    private List<Component> searchSupplementByIds(List<Long> supplementIds) {
-        List<Component> supplementList = new ArrayList<>();
-
-        IntStream.range(0, (supplementIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
-                .mapToObj(i -> supplementIds.subList(i * URI_BATCH_SIZE, Math.min(supplementIds.size(), (i + 1) * URI_BATCH_SIZE)))
-                .map(dataBatch -> dataBatch.stream()
-                        .map(Object::toString)
-                        .collect(Collectors.joining(","))
-                ).forEach(queryString -> {
-                    final var supplementResponse = supplementKaptureClient.findByFieldWithOperator("id", queryString, "in");
-                    if (supplementResponse.getStatusCode().is2xxSuccessful() && supplementResponse.getBody() != null) {
-                        //map the responses to a Component
-                        supplementList.addAll(supplementResponse.getBody().stream()
-                                .map(this::buildSupplementComponent)
-                                .collect(Collectors.toList()));
-                    }
-                }
-        );
-
-        return supplementList;
+        return list;
     }
 
     private List<Component> searchBatch(String searchTerm) {

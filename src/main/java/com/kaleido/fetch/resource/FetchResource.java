@@ -6,6 +6,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Slf4j
 @Api("Fetch Operations")
 @RestController
 @RequestMapping("/")
@@ -43,6 +45,7 @@ public class FetchResource {
     })
     @GetMapping("/components/search/{searchTerm}")
     public ResponseEntity<List<Component>> searchComponents(@PathVariable String searchTerm) {
+        log.debug("call to /components/search/{}", searchTerm);
         return ResponseEntity.ok(fetchService.findComponents(searchTerm));
     }
 
@@ -53,6 +56,7 @@ public class FetchResource {
     })
     @PostMapping("/components/find")
     public ResponseEntity<List<Component>> getComponentsByClassificationAndId(@RequestBody List<Component> searchComponents) {
+        log.debug("call to /components/find : {}", searchComponents);
         return ResponseEntity.ok(fetchService.getComponentsByClassificationAndId(searchComponents));
     }
 
