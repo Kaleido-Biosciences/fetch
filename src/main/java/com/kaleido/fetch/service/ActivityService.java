@@ -1,5 +1,6 @@
 package com.kaleido.fetch.service;
 
+import com.kaleido.fetch.domain.Activity;
 import com.kaleido.kaptureclient.client.KaptureClient;
 import com.kaleido.kaptureclient.domain.Experiment;
 import lombok.extern.slf4j.Slf4j;
@@ -64,6 +65,10 @@ public class ActivityService {
         return results;
     }
 
+    public Activity getActivity(Long id) {
+        experimentKaptureClient.find(id);
+        return new Activity();
+    }
 
     private List<Experiment> searchExperiment(String searchTerm) {
         final var mediaResponse = experimentKaptureClient.findByFieldWithOperator("name", searchTerm, "contains");
@@ -73,4 +78,15 @@ public class ActivityService {
                 Collections.emptyList();
     }
 
+    private Activity buildActivity(Experiment experiment) {
+        if(experiment == null) {
+            return null;
+        }
+
+        return Activity.builder()
+                .id(experiment.getId())
+                .name(experiment.getName())
+                .description(experiment.getDescription())
+                .build();
+    }
 }
