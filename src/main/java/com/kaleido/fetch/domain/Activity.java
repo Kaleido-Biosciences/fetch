@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
@@ -13,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
 public class Activity {
     private Long id;
 
@@ -29,5 +31,6 @@ public class Activity {
     private List<ActivityVersion> completedVersions;
 
     @ApiModelProperty(value = "Plate map data associated with the activity. Note: This string is currently LZW encoded as the plain text is quite large")
-    private String plateMap;
+    private String data;
+    
 }

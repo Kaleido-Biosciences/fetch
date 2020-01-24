@@ -3,9 +3,19 @@ package com.kaleido.fetch.service;
 import com.kaleido.fetch.domain.Activity;
 import com.kaleido.kaptureclient.client.KaptureClient;
 import com.kaleido.kaptureclient.domain.Experiment;
+import com.kaleido.kaptureclient.domain.Platemap;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +31,9 @@ import java.util.stream.Stream;
 public class ActivityService {
 
     private final KaptureClient<Experiment> experimentKaptureClient;
+    
+    @Value("${cabinet.endpoint}")
+    private String cabinetURI;
 
     public ActivityService(KaptureClient<Experiment> experimentKaptureClient) {
         this.experimentKaptureClient = experimentKaptureClient;
@@ -69,6 +82,18 @@ public class ActivityService {
         experimentKaptureClient.find(id);
         return new Activity();
     }
+    
+    public ResponseEntity<Activity> saveActivityDraft(Activity activity) {
+    	
+    	log.info("activity id is ", activity);
+    	String plateMapURI = cabinetURI + "plate-maps";
+    	
+    	RestTemplate restTemplate = new RestTemplate();
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.setContentType(MediaType.APPLICATION_JSON);
+    	HttpEntity<Activity> entity = new HttpEntity<Activity>(activity,headers);
+        return restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, Activity.class);
+    }
 
     private List<Experiment> searchExperiment(String searchTerm) {
         final var mediaResponse = experimentKaptureClient.findByFieldWithOperator("name", searchTerm, "contains");
@@ -89,4 +114,5 @@ public class ActivityService {
                 .description(experiment.getDescription())
                 .build();
     }
+     
 }
