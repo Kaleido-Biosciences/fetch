@@ -13,7 +13,7 @@ USER dea
 
 ADD target/*.jar app.jar
 
-ENTRYPOINT ["sh","./entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
 
 EXPOSE 8080
 
