@@ -1,11 +1,22 @@
 package com.kaleido.fetch.service;
 
+import com.kaleido.fetch.domain.Activity;
+import com.kaleido.fetch.domain.PlateMap;
 import com.kaleido.kaptureclient.client.KaptureClient;
 import com.kaleido.kaptureclient.domain.Experiment;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -20,6 +31,9 @@ import java.util.stream.Stream;
 public class ActivityService {
 
     private final KaptureClient<Experiment> experimentKaptureClient;
+    
+    @Value("${cabinet.endpoint}")
+    private String cabinetURI;
 
     public ActivityService(KaptureClient<Experiment> experimentKaptureClient) {
         this.experimentKaptureClient = experimentKaptureClient;
@@ -64,6 +78,61 @@ public class ActivityService {
         return results;
     }
 
+    public Activity getActivity(Long id) {
+        experimentKaptureClient.find(id);
+        return new Activity();
+    }
+    
+    public ResponseEntity<PlateMap> saveNewActivityDraft(PlateMap plateMap) {
+    	
+    	log.info("Platemap data is ", plateMap);
+    	String plateMapURI = cabinetURI + "plate-maps";
+    	//ZonedDateTime currentTime = ZonedDateTime.now();
+    	//plateMap.setLastModified(currentTime);
+    	
+    	RestTemplate restTemplate = new RestTemplate();
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.setContentType(MediaType.APPLICATION_JSON);
+    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
+        return restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, PlateMap.class);
+    }
+
+    public ResponseEntity<PlateMap> saveActivityDraft(PlateMap plateMap) {
+    	
+    	log.info("Platemap data is ", plateMap);
+    	String plateMapURI = cabinetURI + "plate-maps";
+    	//ZonedDateTime currentTime = ZonedDateTime.now();
+    	//plateMap.setLastModified(currentTime);
+    	
+    	RestTemplate restTemplate = new RestTemplate();
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.setContentType(MediaType.APPLICATION_JSON);
+    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
+        return restTemplate.exchange(plateMapURI, HttpMethod.PUT, entity, PlateMap.class);
+    }
+    
+    public ResponseEntity<PlateMap> saveCompletedActivity(PlateMap plateMap) {
+    	
+    	log.info("Platemap data is ", plateMap);
+    	String plateMapURI = cabinetURI + "plate-maps";
+    	//ZonedDateTime currentTime = ZonedDateTime.now();
+    	//plateMap.setLastModified(currentTime);
+    	
+    	RestTemplate restTemplate = new RestTemplate();
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.setContentType(MediaType.APPLICATION_JSON);
+    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
+        return restTemplate.exchange(plateMapURI, HttpMethod.PUT, entity, PlateMap.class);
+    }
+    
+    public PlateMap getActivitiesPlatemap(String activityName) {
+    	
+    	log.info("Activity name is ", activityName);
+        String plateMapURI = cabinetURI + "plate-maps";
+    	
+    	RestTemplate restTemplate = new RestTemplate();
+        return restTemplate.getForObject(plateMapURI, PlateMap.class);
+    }
 
     private List<Experiment> searchExperiment(String searchTerm) {
         final var mediaResponse = experimentKaptureClient.findByFieldWithOperator("name", searchTerm, "contains");
@@ -73,4 +142,16 @@ public class ActivityService {
                 Collections.emptyList();
     }
 
+    private Activity buildActivity(Experiment experiment) {
+        if(experiment == null) {
+            return null;
+        }
+
+        return Activity.builder()
+                .id(experiment.getId())
+                .name(experiment.getName())
+                .description(experiment.getDescription())
+                .build();
+    }
+     
 }
