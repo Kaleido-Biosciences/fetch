@@ -19,11 +19,9 @@ maven-build:
     stage: build
     before_script:
         - chmod +x mvnw
-    variables:
-      CABINET_URL: ${CABINET_URL}
     script:
       - ./mvnw compile -Dspring.profiles.active=prod -DskipTests
-      - ./mvnw package -Dspring.profiles.active=prod
+      - ./mvnw package -Dspring.profiles.active=prod -DskipTests
     artifacts:
         paths:
             - target/*.jar
