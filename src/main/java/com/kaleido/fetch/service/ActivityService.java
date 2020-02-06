@@ -95,19 +95,11 @@ public class ActivityService<E> {
     	String plateMapURI = cabinetURI + "plate-maps";
     	//ZonedDateTime currentTime = ZonedDateTime.now();
     	//plateMap.setLastModified(currentTime);
-    	Map<String,String> pmActivity = new HashMap<String,String>();
-    	pmActivity.put("name", plateMap.getActivityName());
-    
-    	if (!findActivities(plateMap.getActivityName()).isEmpty()) {
-    		RestTemplate restTemplate = new RestTemplate();
-        	HttpHeaders headers = new HttpHeaders();
-        	headers.setContentType(MediaType.APPLICATION_JSON);
-        	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
-            return restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, PlateMap.class);
-    	}
-    	else {
-    		return new ResponseEntity<PlateMap>(HttpStatus.BAD_REQUEST);
-    	}
+    	RestTemplate restTemplate = new RestTemplate();
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.setContentType(MediaType.APPLICATION_JSON);
+    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
+        return restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, PlateMap.class);
     	
     }
 
