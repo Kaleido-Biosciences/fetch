@@ -6,6 +6,8 @@ import com.kaleido.kaptureclient.client.KaptureClient;
 import com.kaleido.kaptureclient.domain.Experiment;
 
 import lombok.extern.slf4j.Slf4j;
+import springfox.documentation.spring.web.json.Json;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
@@ -21,22 +24,25 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
 @Service
-public class ActivityService {
+public class ActivityService<E> {
 
     private final KaptureClient<Experiment> experimentKaptureClient;
+    
     
     @Value("${cabinet.endpoint}")
     private String cabinetURI;
 
     public ActivityService(KaptureClient<Experiment> experimentKaptureClient) {
-        this.experimentKaptureClient = experimentKaptureClient;
+		this.experimentKaptureClient = experimentKaptureClient;
     }
 
     public List<Experiment> findActivities(@PathVariable String searchTerm) {
@@ -89,12 +95,20 @@ public class ActivityService {
     	String plateMapURI = cabinetURI + "plate-maps";
     	//ZonedDateTime currentTime = ZonedDateTime.now();
     	//plateMap.setLastModified(currentTime);
+    	Map<String,String> pmActivity = new HashMap<String,String>();
+    	pmActivity.put("name", plateMap.getActivityName());
+    
+    	if (!findActivities(plateMap.getActivityName()).isEmpty()) {
+    		RestTemplate restTemplate = new RestTemplate();
+        	HttpHeaders headers = new HttpHeaders();
+        	headers.setContentType(MediaType.APPLICATION_JSON);
+        	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
+            return restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, PlateMap.class);
+    	}
+    	else {
+    		return new ResponseEntity<PlateMap>(HttpStatus.BAD_REQUEST);
+    	}
     	
-    	RestTemplate restTemplate = new RestTemplate();
-    	HttpHeaders headers = new HttpHeaders();
-    	headers.setContentType(MediaType.APPLICATION_JSON);
-    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
-        return restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, PlateMap.class);
     }
 
     public ResponseEntity<PlateMap> saveActivityDraft(PlateMap plateMap) {
@@ -125,13 +139,16 @@ public class ActivityService {
         return restTemplate.exchange(plateMapURI, HttpMethod.PUT, entity, PlateMap.class);
     }
     
-    public PlateMap getActivitiesPlatemap(String activityName) {
+    public ResponseEntity<PlateMap[]> getActivitiesPlatemap(PlateMap plateMap) {
     	
-    	log.info("Activity name is ", activityName);
-        String plateMapURI = cabinetURI + "plate-maps";
+    	log.info("PlateMap data is ", plateMap);
+        String plateMapURI = cabinetURI + "plate-maps/details";
     	
     	RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.getForObject(plateMapURI, PlateMap.class);
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.setContentType(MediaType.APPLICATION_JSON);
+    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
+        return restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, PlateMap[].class);
     }
 
     private List<Experiment> searchExperiment(String searchTerm) {
