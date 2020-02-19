@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -89,40 +90,42 @@ public class ActivityService<E> {
         return new Activity();
     }
     
-    public ResponseEntity<PlateMap> saveNewActivityDraft(PlateMap plateMap) {
+    public ResponseEntity<String> saveNewActivityDraft(PlateMap plateMap) {
     	
     	log.info("Platemap data is ", plateMap);
     	String plateMapURI = cabinetURI + "plate-maps";
-    	//ZonedDateTime currentTime = ZonedDateTime.now();
-    	//plateMap.setLastModified(currentTime);
     	RestTemplate restTemplate = new RestTemplate();
     	HttpHeaders headers = new HttpHeaders();
+    	String username = "admin";
+    	String password = "admin";
+    	headers.setBasicAuth(username, password);
     	headers.setContentType(MediaType.APPLICATION_JSON);
     	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
-        return restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, PlateMap.class);
+    	if(!findActivities(plateMap.getActivityName()).isEmpty()) {
+    		return restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, String.class);
+    	}
+    	else {
+    		return new ResponseEntity<String>(HttpStatus.CONFLICT);
+    	}
     	
     }
 
-    public ResponseEntity<PlateMap> saveActivityDraft(PlateMap plateMap) {
+    public ResponseEntity<String> saveActivityDraft(PlateMap plateMap) {
     	
     	log.info("Platemap data is ", plateMap);
     	String plateMapURI = cabinetURI + "plate-maps";
-    	//ZonedDateTime currentTime = ZonedDateTime.now();
-    	//plateMap.setLastModified(currentTime);
     	
     	RestTemplate restTemplate = new RestTemplate();
     	HttpHeaders headers = new HttpHeaders();
     	headers.setContentType(MediaType.APPLICATION_JSON);
     	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
-        return restTemplate.exchange(plateMapURI, HttpMethod.PUT, entity, PlateMap.class);
+        return restTemplate.exchange(plateMapURI, HttpMethod.PUT, entity, String.class);
     }
     
     public ResponseEntity<PlateMap> saveCompletedActivity(PlateMap plateMap) {
     	
     	log.info("Platemap data is ", plateMap);
     	String plateMapURI = cabinetURI + "plate-maps";
-    	//ZonedDateTime currentTime = ZonedDateTime.now();
-    	//plateMap.setLastModified(currentTime);
     	
     	RestTemplate restTemplate = new RestTemplate();
     	HttpHeaders headers = new HttpHeaders();
@@ -142,10 +145,28 @@ public class ActivityService<E> {
     	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
         return restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, PlateMap[].class);
     }
+    
+    public ResponseEntity<PlateMap[]> getActivitiesList(String activityName) {
+    	log.info("Activity name is ", activityName);
+        String plateMapURI = cabinetURI + "plate-maps/details";
+    	
+    	RestTemplate restTemplate = new RestTemplate();
+    	HttpHeaders headers = new HttpHeaders();
+    	String username = "admin";
+    	String password = "admin";
+    	headers.setBasicAuth(username, password);
+    	PlateMap plateMap = new PlateMap();
+    	plateMap.setActivityName(activityName);
+    	plateMap.setStatus("COMPLETED");
+    	headers.setContentType(MediaType.APPLICATION_JSON);
+    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
+        return restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, PlateMap[].class);
+    	
+    }
 
     private List<Experiment> searchExperiment(String searchTerm) {
+    	
         final var mediaResponse = experimentKaptureClient.findByFieldWithOperator("name", searchTerm, "contains");
-
         return mediaResponse.getStatusCode().is2xxSuccessful() && mediaResponse.getBody() != null ?
                 new ArrayList<>(mediaResponse.getBody()) : //map the responses to a Component
                 Collections.emptyList();

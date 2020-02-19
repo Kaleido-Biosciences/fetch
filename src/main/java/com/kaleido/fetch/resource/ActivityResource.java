@@ -100,4 +100,14 @@ public class ActivityResource {
     public ResponseEntity<ResponseEntity<PlateMap>> searchActivitiesPlatemap(@RequestBody PlateMap plateMap) {
         return ResponseEntity.ok(activityService.getActivitiesPlatemap(plateMap));
     }
+    
+    @ApiOperation(value = "Retrieves the list of activity for the given id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Activity.class),
+            @ApiResponse(code = 400, message = "Invalid status value")
+    })
+    @GetMapping("/cabinet/completed/search/{activityName}")
+    public ResponseEntity<ResponseEntity<Activity>> getActivity(@PathVariable String activityName) {
+        return ResponseEntity.ok(activityService.getActivitiesList(activityName));
+    }
 }
