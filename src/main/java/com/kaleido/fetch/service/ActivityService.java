@@ -96,9 +96,6 @@ public class ActivityService<E> {
     	String plateMapURI = cabinetURI + "plate-maps";
     	RestTemplate restTemplate = new RestTemplate();
     	HttpHeaders headers = new HttpHeaders();
-    	String username = "admin";
-    	String password = "admin";
-    	headers.setBasicAuth(username, password);
     	headers.setContentType(MediaType.APPLICATION_JSON);
     	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
     	if(!findActivities(plateMap.getActivityName()).isEmpty()) {
@@ -152,9 +149,6 @@ public class ActivityService<E> {
     	
     	RestTemplate restTemplate = new RestTemplate();
     	HttpHeaders headers = new HttpHeaders();
-    	String username = "admin";
-    	String password = "admin";
-    	headers.setBasicAuth(username, password);
     	PlateMap plateMap = new PlateMap();
     	plateMap.setActivityName(activityName);
     	plateMap.setStatus("COMPLETED");
