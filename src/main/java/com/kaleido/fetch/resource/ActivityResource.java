@@ -96,8 +96,8 @@ public class ActivityResource {
             @ApiResponse(code = 200, message = "Successful operation", response = Activity.class),
             @ApiResponse(code = 400, message = "Invalid status value")
     })
-    @GetMapping("/get/{activityName}")
-    public ResponseEntity<PlateMap> searchActivitiesPlatemap(@PathVariable String activityName) {
-        return ResponseEntity.ok(activityService.getActivitiesPlatemap(activityName));
+    @PostMapping("/retrieve/platemap")
+    public ResponseEntity<ResponseEntity<PlateMap>> searchActivitiesPlatemap(@RequestBody PlateMap plateMap) {
+        return ResponseEntity.ok(activityService.getActivitiesPlatemap(plateMap));
     }
 }
