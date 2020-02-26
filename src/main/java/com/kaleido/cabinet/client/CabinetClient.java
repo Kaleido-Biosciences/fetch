@@ -445,9 +445,6 @@ public class CabinetClient<E> {
     public ResponseEntity<?> cabinetPlatemap(String URI, PlateMap plateMap, HttpMethod method, Class classType) {
     	RestTemplate restTemplate = new RestTemplate();
     	HttpHeaders headers = new HttpHeaders();
-    	String username = "admin";
-    	String password = "admin";
-    	headers.setBasicAuth(username, password);
     	headers.setContentType(MediaType.APPLICATION_JSON);
     	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
         return restTemplate.exchange(URI, method, entity, classType);
