@@ -282,9 +282,6 @@ public class CabinetClient<E> {
                 if (id == null) {
                     //no id, POST it
                 	HttpHeaders headers = new HttpHeaders();
-                	String username = "admin";
-                	String password = "admin";
-                	headers.setBasicAuth(username, password);
                 	headers.setContentType(MediaType.APPLICATION_JSON);
                 	HttpEntity<PlateMap> plateEntity = new HttpEntity<PlateMap>((PlateMap)entity,headers);
                     //return restTemplate.exchange(endpoint, HttpMethod.POST, entity, classType);
