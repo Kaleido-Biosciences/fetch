@@ -6,9 +6,14 @@ import com.kaleido.kaptureclient.domain.Batch;
 import com.kaleido.kaptureclient.domain.BatchAlias;
 import com.kaleido.kaptureclient.domain.ChemicalConcept;
 import com.kaleido.kaptureclient.domain.Community;
+import com.kaleido.kaptureclient.domain.Experiment;
 import com.kaleido.kaptureclient.domain.Media;
+import com.kaleido.kaptureclient.domain.Platemap;
 import com.kaleido.kaptureclient.domain.Supplement;
 import lombok.extern.slf4j.Slf4j;
+import sun.net.www.content.text.plain;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -35,12 +40,16 @@ public class FetchService {
     private KaptureClient<Batch> batchKaptureClient;
     private KaptureClient<Community> communityKaptureClient;
     private KaptureClient<Supplement> supplementKaptureClient;
+    private KaptureClient<Experiment> experimentKaptureClient;
+    private KaptureClient<Platemap> plateMapKaptureClient;
 
-    public FetchService(KaptureClient<Media> mediaKaptureClient, KaptureClient<Batch> batchKaptureClient, KaptureClient<Community> communityKaptureClient, KaptureClient<Supplement> supplementKaptureClient) {
+    public FetchService(KaptureClient<Media> mediaKaptureClient, KaptureClient<Batch> batchKaptureClient, KaptureClient<Community> communityKaptureClient, KaptureClient<Supplement> supplementKaptureClient, KaptureClient<Experiment> experimentKaptureClient,KaptureClient<Platemap> plateMapKaptureClient) {
         this.mediaKaptureClient = mediaKaptureClient;
         this.batchKaptureClient = batchKaptureClient;
         this.communityKaptureClient = communityKaptureClient;
         this.supplementKaptureClient = supplementKaptureClient;
+        this.experimentKaptureClient =  experimentKaptureClient;
+        this.plateMapKaptureClient =    plateMapKaptureClient;
     }
 
     public List<Component> findComponents(String searchTerm) {
@@ -145,6 +154,26 @@ public class FetchService {
         return results;
     }
 
+    public List<String> getAllBarcodesforactivity(String activityname)
+    {
+    	List<String> barcodeArray =  new ArrayList<String>();
+       
+    	 ResponseEntity<List<Experiment>> experimentList = experimentKaptureClient.findByFieldEquals("name", activityname);
+    	 
+         if (experimentList.getStatusCode().is2xxSuccessful() && experimentList.getBody() != null &&  experimentList.getBody().size() > 0) {
+        
+  	     var platmapsfromrepository = plateMapKaptureClient.findByFieldEquals("experimentId", experimentList.getBody().get(0).getId().toString());
+        
+          if (platmapsfromrepository.getStatusCode().is2xxSuccessful() && platmapsfromrepository.getBody() != null) {
+        	  
+        	  platmapsfromrepository.getBody().stream().forEachOrdered(plate->{barcodeArray.add(plate.getBarcode());});
+          }
+          
+         }
+   
+    	return barcodeArray;
+    }
+    
     private List<Component> searchMediaByIds(List<Long> mediaIds) {
         List<Component> mediaList = new ArrayList<>();
 
@@ -167,6 +196,10 @@ public class FetchService {
         return mediaList;
     }
 
+
+    
+    
+    
     private List<Component> searchBatchByIds(List<Long> batchIds) {
         List<Component> batchList = new ArrayList<>();
 
