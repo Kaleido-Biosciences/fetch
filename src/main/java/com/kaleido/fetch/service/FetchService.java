@@ -154,15 +154,15 @@ public class FetchService {
         return results;
     }
 
-    public List<String> getAllBarcodesforactivity(String activityname)
+    public List<String> getAllBarcodesforactivity(String activityName)
     {
     	List<String> barcodeArray =  new ArrayList<String>();
        
-    	 ResponseEntity<List<Experiment>> experimentList = experimentKaptureClient.findByFieldEquals("name", activityname);
+    	ResponseEntity<List<Experiment>> experimentList = experimentKaptureClient.findByFieldEquals("name", activityName);
     	 
          if (experimentList.getStatusCode().is2xxSuccessful() && experimentList.getBody() != null &&  experimentList.getBody().size() > 0) {
         
-  	     var platmapsfromrepository = plateMapKaptureClient.findByFieldEquals("experimentId", experimentList.getBody().get(0).getId().toString());
+  	     var platmapsfromrepository =plateMapKaptureClient.findByFieldEquals("experimentId", experimentList.getBody().get(0).getId().toString());
         
           if (platmapsfromrepository.getStatusCode().is2xxSuccessful() && platmapsfromrepository.getBody() != null) {
         	  
