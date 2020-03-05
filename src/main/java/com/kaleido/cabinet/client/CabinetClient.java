@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019. Kaleido Biosciences. All Rights Reserved
- */
-
 package com.kaleido.cabinet.client;
 
 import org.slf4j.Logger;
