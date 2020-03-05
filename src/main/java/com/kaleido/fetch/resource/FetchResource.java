@@ -22,11 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/")
 public class FetchResource {
-
-    private final FetchService fetchService;
-    
-    
-
+	private final FetchService fetchService;
     public FetchResource(FetchService fetchService) {
         this.fetchService = fetchService;
     }
@@ -59,7 +55,6 @@ public class FetchResource {
     public ResponseEntity<List<Component>> getComponentsByClassificationAndId(@RequestBody List<Component> searchComponents) {
         return ResponseEntity.ok(fetchService.getComponentsByClassificationAndId(searchComponents));
     }
-    
     @GetMapping("/activity/barcodes/{activityName}")
     public ResponseEntity<List<String>> getBarcodesByActivityName(@PathVariable String activityName) {
     	return ResponseEntity.ok(fetchService.getAllBarcodes(activityName));
