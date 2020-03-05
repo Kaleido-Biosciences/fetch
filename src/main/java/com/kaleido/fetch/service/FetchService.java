@@ -11,8 +11,6 @@ import com.kaleido.kaptureclient.domain.Media;
 import com.kaleido.kaptureclient.domain.Platemap;
 import com.kaleido.kaptureclient.domain.Supplement;
 import lombok.extern.slf4j.Slf4j;
-import sun.net.www.content.text.plain;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
