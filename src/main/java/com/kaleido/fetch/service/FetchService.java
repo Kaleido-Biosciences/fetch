@@ -151,7 +151,7 @@ public class FetchService {
     }
 
     public List <String> getAllBarcodes(String activityName) {
-        List < String > barcodeArray = new ArrayList < String > ();
+        List <String> barcodeArray = new ArrayList <String> ();
 
         ResponseEntity <List<Experiment>> experimentList = experimentKaptureClient.findByFieldEquals("name", activityName);
         var expertimentId = experimentList.getBody().get(0).getId().toString();
@@ -168,7 +168,7 @@ public class FetchService {
         return barcodeArray;
     }
 
-    private List <Component> searchMediaByIds(List < Long > mediaIds) {
+    private List <Component> searchMediaByIds(List <Long> mediaIds) {
         List <Component> mediaList = new ArrayList < > ();
 
         IntStream.range(0, (mediaIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
@@ -190,7 +190,7 @@ public class FetchService {
         return mediaList;
     }
 
-    private List <Component> searchBatchByIds(List < Long > batchIds) {
+    private List <Component> searchBatchByIds(List <Long> batchIds) {
         List <Component> batchList = new ArrayList < > ();
 
         IntStream.range(0, (batchIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
@@ -212,7 +212,7 @@ public class FetchService {
         return batchList;
     }
 
-    private List <Component> searchCommunityByIds(List < Long > communityIds) {
+    private List <Component> searchCommunityByIds(List <Long> communityIds) {
         List <Component> communityList = new ArrayList < > ();
 
         IntStream.range(0, (communityIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
@@ -234,7 +234,7 @@ public class FetchService {
         return communityList;
     }
 
-    private List <Component> searchSupplementByIds(List < Long > supplementIds) {
+    private List <Component> searchSupplementByIds(List <Long> supplementIds) {
         List <Component> supplementList = new ArrayList < > ();
 
         IntStream.range(0, (supplementIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
