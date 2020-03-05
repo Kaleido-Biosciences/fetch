@@ -73,7 +73,7 @@ public class FetchService {
         var batchComponents = CompletableFuture.supplyAsync(() -> searchBatch(elasticSearchTerm));
         var communityComponents = CompletableFuture.supplyAsync(() -> searchCommunity(originalSearchTerm));
         var supplementComponents = CompletableFuture.supplyAsync(() -> searchSupplement(originalSearchTerm));
-
+       
         var matches = Stream.of(mediaComponents, batchComponents, communityComponents, supplementComponents)
                 //wait for all the futures to complete
                 .map(CompletableFuture::join)
@@ -154,7 +154,7 @@ public class FetchService {
         return results;
     }
 
-    public List<String> getAllBarcodesforactivity(String activityName)
+    public List<String> getAllBarcodes(String activityName)
     {
     	List<String> barcodeArray =  new ArrayList<String>();
        
@@ -166,13 +166,16 @@ public class FetchService {
         
           if (platmapsfromrepository.getStatusCode().is2xxSuccessful() && platmapsfromrepository.getBody() != null) {
         	  
-        	  platmapsfromrepository.getBody().stream().forEachOrdered(plate->{barcodeArray.add(plate.getBarcode());});
+        	  platmapsfromrepository.getBody().stream().forEach(plate->{barcodeArray.add(plate.getBarcode());});
           }
           
          }
    
     	return barcodeArray;
     }
+    
+
+ 
     
     private List<Component> searchMediaByIds(List<Long> mediaIds) {
         List<Component> mediaList = new ArrayList<>();

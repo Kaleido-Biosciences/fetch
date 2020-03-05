@@ -24,6 +24,8 @@ import java.util.List;
 public class FetchResource {
 
     private final FetchService fetchService;
+    
+    
 
     public FetchResource(FetchService fetchService) {
         this.fetchService = fetchService;
@@ -60,7 +62,7 @@ public class FetchResource {
     
     @GetMapping("/activity/barcodes/{activityName}")
     public ResponseEntity<List<String>> getBarcodesByActivityName(@PathVariable String activityName) {
-    	return ResponseEntity.ok(fetchService.getAllBarcodesforactivity(activityName));
+    	return ResponseEntity.ok(fetchService.getAllBarcodes(activityName));
     	
     }
 
