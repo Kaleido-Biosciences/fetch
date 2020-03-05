@@ -32,14 +32,14 @@ public class FetchService {
     private static final int URI_BATCH_SIZE = 50;
     private static final String MICRO_LITER = "\u00B5L";
     private static final String MICRO_GRAM = "\u00B5g";
-    private KaptureClient < Media > mediaKaptureClient;
-    private KaptureClient < Batch > batchKaptureClient;
-    private KaptureClient < Community > communityKaptureClient;
-    private KaptureClient < Supplement > supplementKaptureClient;
-    private KaptureClient < Experiment > experimentKaptureClient;
-    private KaptureClient < Platemap > plateMapKaptureClient;
+    private KaptureClient <Media> mediaKaptureClient;
+    private KaptureClient <Batch> batchKaptureClient;
+    private KaptureClient <Community> communityKaptureClient;
+    private KaptureClient <Supplement> supplementKaptureClient;
+    private KaptureClient <Experiment> experimentKaptureClient;
+    private KaptureClient <Platemap> plateMapKaptureClient;
 
-    public FetchService(KaptureClient < Media > mediaKaptureClient, KaptureClient < Batch > batchKaptureClient, KaptureClient < Community > communityKaptureClient, KaptureClient < Supplement > supplementKaptureClient, KaptureClient < Experiment > experimentKaptureClient, KaptureClient < Platemap > plateMapKaptureClient) {
+    public FetchService(KaptureClient <Media> mediaKaptureClient, KaptureClient <Batch> batchKaptureClient, KaptureClient <Community> communityKaptureClient, KaptureClient <Supplement> supplementKaptureClient, KaptureClient <Experiment> experimentKaptureClient, KaptureClient <Platemap> plateMapKaptureClient) {
         this.mediaKaptureClient = mediaKaptureClient;
         this.batchKaptureClient = batchKaptureClient;
         this.communityKaptureClient = communityKaptureClient;
@@ -48,7 +48,7 @@ public class FetchService {
         this.plateMapKaptureClient = plateMapKaptureClient;
     }
 
-    public List < Component > findComponents(String searchTerm) {
+    public List <Component> findComponents(String searchTerm) {
         log.debug("call to /components/search/{}", searchTerm);
 
         final String originalSearchTerm = searchTerm;
@@ -79,7 +79,7 @@ public class FetchService {
             .collect(Collectors.partitioningBy(component -> component.getName().equals(originalSearchTerm)));
 
         //sort the matches that are not exact
-        List < Component > sortedNonExactMatches = matches.get(false).stream()
+        List <Component> sortedNonExactMatches = matches.get(false).stream()
             .sorted(Comparator.comparing(Component::getName)
                 .thenComparing(Component::getClassification))
             .collect(Collectors.toList());
@@ -87,14 +87,14 @@ public class FetchService {
         log.debug("Sorted non-exact matches {}", sortedNonExactMatches);
 
         //sort any exact matches by classification only
-        List < Component > sortedExactMatches = matches.get(true).stream()
+        List <Component> sortedExactMatches = matches.get(true).stream()
             .sorted(Comparator.comparing(Component::getClassification))
             .collect(Collectors.toList());
 
         log.debug("Sorted exact matches: {}", sortedExactMatches);
 
         //combine the exact and non-exact matches
-        List < Component > results = Stream.of(sortedExactMatches, sortedNonExactMatches)
+        List <Component> results = Stream.of(sortedExactMatches, sortedNonExactMatches)
             .flatMap(Collection::stream)
             .collect(Collectors.toList());
 
@@ -104,7 +104,7 @@ public class FetchService {
         return results;
     }
 
-    public List < Component > getComponentsByClassificationAndId(List < Component > searchComponents) {
+    public List <Component> getComponentsByClassificationAndId(List <Component> searchComponents) {
         log.debug("call to /components/find : {}", searchComponents);
 
         var mediaComponents = CompletableFuture.supplyAsync(() -> searchMediaByIds(
@@ -135,7 +135,7 @@ public class FetchService {
             .collect(Collectors.toList())
         ));
 
-        List < Component > results = Stream.of(mediaComponents, batchComponents, communityComponents, supplementComponents)
+        List <Component> results = Stream.of(mediaComponents, batchComponents, communityComponents, supplementComponents)
             //wait for all the futures to complete
             .map(CompletableFuture::join)
             //make a combined stream of components
@@ -150,10 +150,10 @@ public class FetchService {
         return results;
     }
 
-    public List < String > getAllBarcodes(String activityName) {
+    public List <String> getAllBarcodes(String activityName) {
         List < String > barcodeArray = new ArrayList < String > ();
 
-        ResponseEntity < List < Experiment >> experimentList = experimentKaptureClient.findByFieldEquals("name", activityName);
+        ResponseEntity <List<Experiment>> experimentList = experimentKaptureClient.findByFieldEquals("name", activityName);
         var expertimentId = experimentList.getBody().get(0).getId().toString();
         if (experimentList.getStatusCode().is2xxSuccessful() && experimentList.getBody() != null && experimentList.getBody().size() > 0) {
             var platmapsfromrepository = plateMapKaptureClient.findByFieldEquals("experimentId", expertimentId);
@@ -168,8 +168,8 @@ public class FetchService {
         return barcodeArray;
     }
 
-    private List < Component > searchMediaByIds(List < Long > mediaIds) {
-        List < Component > mediaList = new ArrayList < > ();
+    private List <Component> searchMediaByIds(List < Long > mediaIds) {
+        List <Component> mediaList = new ArrayList < > ();
 
         IntStream.range(0, (mediaIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
             .mapToObj(i -> mediaIds.subList(i * URI_BATCH_SIZE, Math.min(mediaIds.size(), (i + 1) * URI_BATCH_SIZE)))
@@ -190,8 +190,8 @@ public class FetchService {
         return mediaList;
     }
 
-    private List < Component > searchBatchByIds(List < Long > batchIds) {
-        List < Component > batchList = new ArrayList < > ();
+    private List <Component> searchBatchByIds(List < Long > batchIds) {
+        List <Component> batchList = new ArrayList < > ();
 
         IntStream.range(0, (batchIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
             .mapToObj(i -> batchIds.subList(i * URI_BATCH_SIZE, Math.min(batchIds.size(), (i + 1) * URI_BATCH_SIZE)))
@@ -212,8 +212,8 @@ public class FetchService {
         return batchList;
     }
 
-    private List < Component > searchCommunityByIds(List < Long > communityIds) {
-        List < Component > communityList = new ArrayList < > ();
+    private List <Component> searchCommunityByIds(List < Long > communityIds) {
+        List <Component> communityList = new ArrayList < > ();
 
         IntStream.range(0, (communityIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
             .mapToObj(i -> communityIds.subList(i * URI_BATCH_SIZE, Math.min(communityIds.size(), (i + 1) * URI_BATCH_SIZE)))
@@ -234,8 +234,8 @@ public class FetchService {
         return communityList;
     }
 
-    private List < Component > searchSupplementByIds(List < Long > supplementIds) {
-        List < Component > supplementList = new ArrayList < > ();
+    private List <Component> searchSupplementByIds(List < Long > supplementIds) {
+        List <Component> supplementList = new ArrayList < > ();
 
         IntStream.range(0, (supplementIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
             .mapToObj(i -> supplementIds.subList(i * URI_BATCH_SIZE, Math.min(supplementIds.size(), (i + 1) * URI_BATCH_SIZE)))
@@ -256,7 +256,7 @@ public class FetchService {
         return supplementList;
     }
 
-    private List < Component > searchBatch(String searchTerm) {
+    private List <Component> searchBatch(String searchTerm) {
         final
         var batchResponse = batchKaptureClient.search(searchTerm);
 
@@ -268,7 +268,7 @@ public class FetchService {
             Collections.emptyList();
     }
 
-    private List < Component > searchCommunity(String searchTerm) {
+    private List <Component> searchCommunity(String searchTerm) {
         final
         var communityResponse = communityKaptureClient.findByFieldWithOperator("name", searchTerm, "contains");
 
@@ -280,7 +280,7 @@ public class FetchService {
             Collections.emptyList();
     }
 
-    private List < Component > searchSupplement(String searchTerm) {
+    private List <Component> searchSupplement(String searchTerm) {
         final
         var supplementResponse = supplementKaptureClient.findByFieldWithOperator("name", searchTerm, "contains");
 
@@ -292,7 +292,7 @@ public class FetchService {
             Collections.emptyList();
     }
 
-    private List < Component > searchMedia(String searchTerm) {
+    private List <Component> searchMedia(String searchTerm) {
         final
         var mediaResponse = mediaKaptureClient.findByFieldWithOperator("name", searchTerm, "contains");
 
