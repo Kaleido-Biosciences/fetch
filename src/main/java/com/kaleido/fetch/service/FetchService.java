@@ -13,7 +13,6 @@ import com.kaleido.kaptureclient.domain.Supplement;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,7 +32,6 @@ public class FetchService {
     private static final int URI_BATCH_SIZE = 50;
     private static final String MICRO_LITER = "\u00B5L";
     private static final String MICRO_GRAM = "\u00B5g";
-
     private KaptureClient < Media > mediaKaptureClient;
     private KaptureClient < Batch > batchKaptureClient;
     private KaptureClient < Community > communityKaptureClient;
@@ -191,10 +189,6 @@ public class FetchService {
 
         return mediaList;
     }
-
-
-
-
 
     private List < Component > searchBatchByIds(List < Long > batchIds) {
         List < Component > batchList = new ArrayList < > ();
