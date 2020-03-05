@@ -65,10 +65,10 @@ public class FetchService {
         //search a bunch of endpoints in parallel
         final String elasticSearchTerm = searchTerm;
         log.debug("Expanded search term to elastic search term {}", searchTerm);
-        var mediaComponents = CompletableFuture.supplyAsync(() - > searchMedia(originalSearchTerm));
-        var batchComponents = CompletableFuture.supplyAsync(() - > searchBatch(elasticSearchTerm));
-        var communityComponents = CompletableFuture.supplyAsync(() - > searchCommunity(originalSearchTerm));
-        var supplementComponents = CompletableFuture.supplyAsync(() - > searchSupplement(originalSearchTerm));
+        var mediaComponents = CompletableFuture.supplyAsync(() -> searchMedia(originalSearchTerm));
+        var batchComponents = CompletableFuture.supplyAsync(() -> searchBatch(elasticSearchTerm));
+        var communityComponents = CompletableFuture.supplyAsync(() -> searchCommunity(originalSearchTerm));
+        var supplementComponents = CompletableFuture.supplyAsync(() -> searchSupplement(originalSearchTerm));
 
         var matches = Stream.of(mediaComponents, batchComponents, communityComponents, supplementComponents)
             //wait for all the futures to complete
@@ -76,7 +76,7 @@ public class FetchService {
             //make a combined stream of components
             .flatMap(Collection::stream)
             //make a boolean make with two lists, those that have an exact match and those that don't
-            .collect(Collectors.partitioningBy(component - > component.getName().equals(originalSearchTerm)));
+            .collect(Collectors.partitioningBy(component -> component.getName().equals(originalSearchTerm)));
 
         //sort the matches that are not exact
         List < Component > sortedNonExactMatches = matches.get(false).stream()
@@ -107,30 +107,30 @@ public class FetchService {
     public List < Component > getComponentsByClassificationAndId(List < Component > searchComponents) {
         log.debug("call to /components/find : {}", searchComponents);
 
-        var mediaComponents = CompletableFuture.supplyAsync(() - > searchMediaByIds(
+        var mediaComponents = CompletableFuture.supplyAsync(() -> searchMediaByIds(
             searchComponents.stream()
-            .filter(searchComponent - > searchComponent.getClassification().equalsIgnoreCase("media"))
+            .filter(searchComponent -> searchComponent.getClassification().equalsIgnoreCase("media"))
             .map(Component::getId)
             .collect(Collectors.toList())
         ));
 
-        var batchComponents = CompletableFuture.supplyAsync(() - > searchBatchByIds(
+        var batchComponents = CompletableFuture.supplyAsync(() -> searchBatchByIds(
             searchComponents.stream()
-            .filter(searchComponent - > searchComponent.getClassification().equalsIgnoreCase("batch"))
+            .filter(searchComponent -> searchComponent.getClassification().equalsIgnoreCase("batch"))
             .map(Component::getId)
             .collect(Collectors.toList())
         ));
 
-        var communityComponents = CompletableFuture.supplyAsync(() - > searchCommunityByIds(
+        var communityComponents = CompletableFuture.supplyAsync(() -> searchCommunityByIds(
             searchComponents.stream()
-            .filter(searchComponent - > searchComponent.getClassification().equalsIgnoreCase("community"))
+            .filter(searchComponent -> searchComponent.getClassification().equalsIgnoreCase("community"))
             .map(Component::getId)
             .collect(Collectors.toList())
         ));
 
-        var supplementComponents = CompletableFuture.supplyAsync(() - > searchSupplementByIds(
+        var supplementComponents = CompletableFuture.supplyAsync(() -> searchSupplementByIds(
             searchComponents.stream()
-            .filter(searchComponent - > searchComponent.getClassification().equalsIgnoreCase("supplement"))
+            .filter(searchComponent -> searchComponent.getClassification().equalsIgnoreCase("supplement"))
             .map(Component::getId)
             .collect(Collectors.toList())
         ));
@@ -159,7 +159,7 @@ public class FetchService {
             var platmapsfromrepository = plateMapKaptureClient.findByFieldEquals("experimentId", expertimentId);
             if (platmapsfromrepository.getStatusCode().is2xxSuccessful() && platmapsfromrepository.getBody() != null) {
                 platmapsfromrepository.getBody().stream()
-                    .forEach(plate - > {
+                    .forEach(plate -> {
                         barcodeArray.add(plate.getBarcode());
                     });
             }
@@ -172,11 +172,11 @@ public class FetchService {
         List < Component > mediaList = new ArrayList < > ();
 
         IntStream.range(0, (mediaIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
-            .mapToObj(i - > mediaIds.subList(i * URI_BATCH_SIZE, Math.min(mediaIds.size(), (i + 1) * URI_BATCH_SIZE)))
-            .map(dataBatch - > dataBatch.stream()
+            .mapToObj(i -> mediaIds.subList(i * URI_BATCH_SIZE, Math.min(mediaIds.size(), (i + 1) * URI_BATCH_SIZE)))
+            .map(dataBatch -> dataBatch.stream()
                 .map(Object::toString)
                 .collect(Collectors.joining(","))
-            ).forEach(queryString - > {
+            ).forEach(queryString -> {
                 final
                 var mediaResponse = mediaKaptureClient.findByFieldWithOperator("id", queryString, "in");
                 if (mediaResponse.getStatusCode().is2xxSuccessful() && mediaResponse.getBody() != null) {
@@ -194,11 +194,11 @@ public class FetchService {
         List < Component > batchList = new ArrayList < > ();
 
         IntStream.range(0, (batchIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
-            .mapToObj(i - > batchIds.subList(i * URI_BATCH_SIZE, Math.min(batchIds.size(), (i + 1) * URI_BATCH_SIZE)))
-            .map(dataBatch - > dataBatch.stream()
+            .mapToObj(i -> batchIds.subList(i * URI_BATCH_SIZE, Math.min(batchIds.size(), (i + 1) * URI_BATCH_SIZE)))
+            .map(dataBatch -> dataBatch.stream()
                 .map(Object::toString)
                 .collect(Collectors.joining(","))
-            ).forEach(queryString - > {
+            ).forEach(queryString -> {
                 final
                 var batchResponse = batchKaptureClient.findByFieldWithOperator("id", queryString, "in");
                 if (batchResponse.getStatusCode().is2xxSuccessful() && batchResponse.getBody() != null) {
@@ -216,11 +216,11 @@ public class FetchService {
         List < Component > communityList = new ArrayList < > ();
 
         IntStream.range(0, (communityIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
-            .mapToObj(i - > communityIds.subList(i * URI_BATCH_SIZE, Math.min(communityIds.size(), (i + 1) * URI_BATCH_SIZE)))
-            .map(dataBatch - > dataBatch.stream()
+            .mapToObj(i -> communityIds.subList(i * URI_BATCH_SIZE, Math.min(communityIds.size(), (i + 1) * URI_BATCH_SIZE)))
+            .map(dataBatch -> dataBatch.stream()
                 .map(Object::toString)
                 .collect(Collectors.joining(","))
-            ).forEach(queryString - > {
+            ).forEach(queryString -> {
                 final
                 var communityResponse = communityKaptureClient.findByFieldWithOperator("id", queryString, "in");
                 if (communityResponse.getStatusCode().is2xxSuccessful() && communityResponse.getBody() != null) {
@@ -238,11 +238,11 @@ public class FetchService {
         List < Component > supplementList = new ArrayList < > ();
 
         IntStream.range(0, (supplementIds.size() + URI_BATCH_SIZE - 1) / URI_BATCH_SIZE)
-            .mapToObj(i - > supplementIds.subList(i * URI_BATCH_SIZE, Math.min(supplementIds.size(), (i + 1) * URI_BATCH_SIZE)))
-            .map(dataBatch - > dataBatch.stream()
+            .mapToObj(i -> supplementIds.subList(i * URI_BATCH_SIZE, Math.min(supplementIds.size(), (i + 1) * URI_BATCH_SIZE)))
+            .map(dataBatch -> dataBatch.stream()
                 .map(Object::toString)
                 .collect(Collectors.joining(","))
-            ).forEach(queryString - > {
+            ).forEach(queryString -> {
                 final
                 var supplementResponse = supplementKaptureClient.findByFieldWithOperator("id", queryString, "in");
                 if (supplementResponse.getStatusCode().is2xxSuccessful() && supplementResponse.getBody() != null) {
