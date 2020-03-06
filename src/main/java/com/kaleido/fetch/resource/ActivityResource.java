@@ -86,7 +86,7 @@ public class ActivityResource {
     })
     @PostMapping("/save/completed")
     public ResponseEntity<ResponseEntity<String>> saveCompletedActivity(@RequestBody PlateMap plateMap) {
-        //TODO: Add the call to the service to save
+        plateMap.setStatus("COMPLETED");
         return ResponseEntity.ok(activityService.saveActivityDraft(plateMap));
     }
     
