@@ -1,6 +1,7 @@
 package com.kaleido.fetch.resource;
 
 import com.kaleido.fetch.domain.Activity;
+import com.kaleido.fetch.domain.ActivitySummary;
 import com.kaleido.fetch.domain.PlateMap;
 import com.kaleido.fetch.service.ActivityService;
 import com.kaleido.kaptureclient.domain.Experiment;
@@ -109,5 +110,9 @@ public class ActivityResource {
     @GetMapping("/cabinet/completed/search/{activityName}")
     public ResponseEntity<ResponseEntity<Activity>> getActivity(@PathVariable String activityName) {
         return ResponseEntity.ok(activityService.getActivitiesList(activityName));
+    }
+	@GetMapping("/activitySummary/{activityName}")
+    public ResponseEntity<List<ActivitySummary>> getActivitySummary(@PathVariable String activityName) {
+        return ResponseEntity.ok(activityService.getActivitySummaryList(activityName));
     }
 }
