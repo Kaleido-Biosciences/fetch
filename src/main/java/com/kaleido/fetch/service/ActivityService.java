@@ -5,6 +5,7 @@ import com.kaleido.fetch.domain.Activity;
 import com.kaleido.fetch.domain.PlateMap;
 import com.kaleido.kaptureclient.client.KaptureClient;
 import com.kaleido.kaptureclient.domain.Experiment;
+import com.kaleido.kaptureclient.domain.Platemap;
 
 import lombok.extern.slf4j.Slf4j;
 import springfox.documentation.spring.web.json.Json;
@@ -141,6 +142,38 @@ public class ActivityService<E> {
     	plateMap.setStatus("COMPLETED");
 
     	return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.POST, PlateMap[].class);
+    }
+    
+    public ResponseEntity<PlateMap[]> getCompletedPayload(PlateMap plateMap) {
+    	log.info("Activity name is ", plateMap);
+        String plateMapURI = cabinetURI + "/plate-maps/data/completed";
+        
+        RestTemplate restTemplate = new RestTemplate();
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.setContentType(MediaType.APPLICATION_JSON);
+    	String username = "admin";
+    	String password = "admin";
+    	headers.setBasicAuth(username, password);
+    	plateMap.setLastModified((ZonedDateTime)plateMap.getLastModified());
+    			//'Jan 15, 2020, 7:00:29 PM
+    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
+
+    	return (ResponseEntity<PlateMap[]>) restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, PlateMap[].class);
+    }
+    
+    public ResponseEntity<PlateMap[]> getDraftPayload(String activityName) {
+    	log.info("Activity name is ", activityName);
+        String plateMapURI = cabinetURI + "/plate-maps/data/draft/"+activityName;
+    	
+        RestTemplate restTemplate = new RestTemplate();
+    	HttpHeaders headers = new HttpHeaders();
+    	headers.setContentType(MediaType.APPLICATION_JSON);
+    	String username = "admin";
+    	String password = "admin";
+    	headers.setBasicAuth(username, password);
+    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(headers);
+
+    	return (ResponseEntity<PlateMap[]>) restTemplate.exchange(plateMapURI, HttpMethod.GET, entity, PlateMap[].class);
     }
 
     private List<Experiment> searchExperiment(String searchTerm) {
