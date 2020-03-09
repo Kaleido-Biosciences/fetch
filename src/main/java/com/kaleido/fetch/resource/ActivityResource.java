@@ -110,4 +110,8 @@ public class ActivityResource {
     public ResponseEntity<ResponseEntity<Activity>> getActivity(@PathVariable String activityName) {
         return ResponseEntity.ok(activityService.getActivitiesList(activityName));
     }
+    @GetMapping("/activitySummary/{activityName}")
+    public ResponseEntity<List<ActivitySummary>> getActivitySummary(@PathVariable String activityName) {
+         return ResponseEntity.ok(activityService.getActivitySummaryList(activityName));
+     }
 }
