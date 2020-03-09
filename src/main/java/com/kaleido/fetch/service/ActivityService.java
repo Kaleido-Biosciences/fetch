@@ -37,12 +37,10 @@ import java.util.stream.Stream;
 public class ActivityService<E> {
 
     private final KaptureClient<Experiment> experimentKaptureClient;
-    
-    
-  
-    private String cabinetURI = "http://localhost:8080/api/";
-    
-
+   
+    @Value("${cabinet.endpoint}")
+    private String cabinetURI;
+   
     public ActivityService(KaptureClient<Experiment> experimentKaptureClient) {
 		this.experimentKaptureClient = experimentKaptureClient;
     }
