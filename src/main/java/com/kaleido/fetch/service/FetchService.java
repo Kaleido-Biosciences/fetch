@@ -375,5 +375,4 @@ public class FetchService {
             ))
             .build();
     }
-
-}
+  }

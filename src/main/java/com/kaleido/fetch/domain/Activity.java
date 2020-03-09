@@ -28,9 +28,9 @@ public class Activity {
     private ZonedDateTime lastModified;
 
     @ApiModelProperty(value = "List of IDs for versions along with timestamps of when they were completed.")
-    private List<ActivityVersion> completedVersions;
+    private List<ActivityVersion> versions;
 
-    @ApiModelProperty(value = "Plate map data associated with the activity. Note: This string is currently LZW encoded as the plain text is quite large")
-    private String data;
+    @ApiModelProperty(value = "List of barcodes for Activity.")
+    private  List<String> barcodes; 
     
 }

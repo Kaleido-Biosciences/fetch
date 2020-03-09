@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +57,7 @@ public class FetchResource {
     @GetMapping("/activity/barcodes/{activityName}")
     public ResponseEntity<List<String>> getBarcodesByActivityName(@PathVariable String activityName) {
     	return ResponseEntity.ok(fetchService.getAllBarcodes(activityName));
-    	
     }
+  
 
 }
