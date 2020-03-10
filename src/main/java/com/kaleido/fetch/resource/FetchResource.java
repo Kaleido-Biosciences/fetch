@@ -54,7 +54,7 @@ public class FetchResource {
     public ResponseEntity<List<Component>> getComponentsByClassificationAndId(@RequestBody List<Component> searchComponents) {
         return ResponseEntity.ok(fetchService.getComponentsByClassificationAndId(searchComponents));
     }
-    @GetMapping("/activity/barcodes/{activityName}")
+    @GetMapping("/activities/barcodes/{activityName}")
     public ResponseEntity<List<String>> getBarcodesByActivityName(@PathVariable String activityName) {
     	return ResponseEntity.ok(fetchService.getAllBarcodes(activityName));
     }
