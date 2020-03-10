@@ -146,7 +146,7 @@ public class ActivityService<E> {
     }
     
     public ResponseEntity<PlateMap[]> getActivitiesList(String activityName) {
-    	log.info("Activity name is ", activityName);
+    	log.debug("Activity name is ", activityName);
         String plateMapURI = cabinetURI + "plate-maps/details";
     	
     	RestTemplate restTemplate = new RestTemplate();
@@ -162,9 +162,13 @@ public class ActivityService<E> {
     
     public List<ActivitySummary> getActivitySummaryList(String searchTerm) {
   	    log.info("ActivitySummary name is ", searchTerm);
-  	    List<ActivitySummary> activitySummaryList = this.findActivities(searchTerm).stream().map(this::buildActivitySummary).collect(Collectors.toList());
+  	    List<ActivitySummary> activitySummaryList = this.findActivities(searchTerm).stream()
+  	        .map(this::buildActivitySummary)
+  	        .collect(Collectors.toList());
   	    activitySummaryList.forEach(action ->{
-  		    action.getVersions().addAll(getPlateMapSummaryFromCabinet(action.getName()).stream().map(this::buildActivityVersion).collect(Collectors.toList()));
+  		    action.getVersions().addAll(getPlateMapSummaryFromCabinet(action.getName()).stream()
+  		        .map(this::buildActivityVersion)
+  		        .collect(Collectors.toList()));
   	    });
         return activitySummaryList;
     }
