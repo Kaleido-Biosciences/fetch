@@ -40,8 +40,12 @@ to work (or would be overridden using standard Spring externalization of configu
 values of username, password and the base URL you can develop against a local host test server, remote test server
 using the same code base that you would then deploy to production and connect to a production server. Each time
 you only need to over-ride the relevant variables using a environment statements such as
-'export CABINET_CLIENT_USERNAME=my_user_name' 'export CABINET_CLIENT_PASSWORD=my_password'
-* CABINET_CLIENT_BASE=https://myserver.com/api/
+
+```
+export CABINET_CLIENT_USERNAME=my_user_name 
+export CABINET_CLIENT_PASSWORD=my_password
+export CABINET_CLIENT_BASE=https://myserver.com/api/
+```
 
 ## Endpoints
 
