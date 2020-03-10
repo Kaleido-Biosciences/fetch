@@ -161,7 +161,7 @@ public class ActivityService<E> {
     }
     
     public List<ActivitySummary> getActivitySummaryList(String searchTerm) {
-  	    log.info("ActivitySummary name is ", searchTerm);
+  	    log.debug("ActivitySummary name is ", searchTerm);
   	    List<ActivitySummary> activitySummaryList = this.findActivities(searchTerm).stream()
   	        .map(this::buildActivitySummary)
   	        .collect(Collectors.toList());
@@ -194,10 +194,10 @@ public class ActivityService<E> {
    
     private List<PlateMap> getPlateMapSummaryFromCabinet(String activityName) {
         RestTemplate restTemplate = new RestTemplate();
-   	    String cabinetplateInfoURI = cabinetURI + "plate-map-summary/"+activityName;
-   	    ResponseEntity<List<PlateMap>> plateMapResponse =restTemplate.exchange(cabinetplateInfoURI,
-   		                    HttpMethod.GET, null, new ParameterizedTypeReference<List<PlateMap>>() {
-   		            });
+        String cabinetplateInfoURI = cabinetURI + "plate-map-summary/"+activityName;
+        ResponseEntity<List<PlateMap>> plateMapResponse =restTemplate.exchange(cabinetplateInfoURI,
+                            HttpMethod.GET, null, new ParameterizedTypeReference<List<PlateMap>>() {
+                    });
    		List<PlateMap> plateMapList = plateMapResponse.getBody();
    		return plateMapList;
     }
@@ -218,7 +218,7 @@ public class ActivityService<E> {
                .id(plateMap.getId())
                .status(plateMap.getStatus())
                .timestamp(plateMap.getLastModified())
-                .build();
+               .build();
     }
      
 }
