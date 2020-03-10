@@ -162,23 +162,21 @@ public class ActivityService<E> {
     }
 	
     public List<ActivitySummary> getActivitySummaryList(String searchTerm) {
-    	  log.info("ActivitySummary name is ", searchTerm);
-    	  List<ActivitySummary> activitySummaryList = this.findActivities(searchTerm).stream().map(this::buildActivitySummary).collect(Collectors.toList());
-    	  activitySummaryList.forEach(action ->{
-    		    action.getVersions().addAll(getPlateMapSummaryFromCabinet(action.getName()).stream().map(this::buildActivityVersion).collect(Collectors.toList()));
-    	  });
+        log.info("ActivitySummary name is ", searchTerm);
+        List<ActivitySummary> activitySummaryList = this.findActivities(searchTerm).stream().map(this::buildActivitySummary).collect(Collectors.toList());
+        activitySummaryList.forEach(action ->{
+            action.getVersions().addAll(getPlateMapSummaryFromCabinet(action.getName()).stream().map(this::buildActivityVersion).collect(Collectors.toList()));
+        });
         return activitySummaryList;
     }
     
-    private List<PlateMap> getPlateMapSummaryFromCabinet(String activityName)
-    {
-      RestTemplate restTemplate = new RestTemplate();
-   	  String cabinetplateInfoURI = cabinetURI + "plate-map-summary/"+activityName;
-   	  ResponseEntity<List<PlateMap>> plateMapResponse =restTemplate.exchange(cabinetplateInfoURI,
-   		                    HttpMethod.GET, null, new ParameterizedTypeReference<List<PlateMap>>() {
-   		            });
-   		List<PlateMap> plateMapList = plateMapResponse.getBody();
-   		return plateMapList;
+    private List<PlateMap> getPlateMapSummaryFromCabinet(String activityName) {
+        RestTemplate restTemplate = new RestTemplate();
+        String cabinetplateInfoURI = cabinetURI + "plate-map-summary/"+activityName;
+   	    ResponseEntity<List<PlateMap>> plateMapResponse =restTemplate.exchange(cabinetplateInfoURI,
+   		    HttpMethod.GET, null, new ParameterizedTypeReference<List<PlateMap>>() {
+   	    });
+   		return plateMapResponse.getBody();
     }
 	
     private List<Experiment> searchExperiment(String searchTerm) {
@@ -201,16 +199,15 @@ public class ActivityService<E> {
                 .build();
     }
 	
-	private ActivitySummary buildActivitySummary(Experiment experment)
-    {
-     return	ActivitySummary
-			.builder()
-			.name(experment.getName())
-			.description(experment.getDescription())
-			.id(experment.getId())
-			.numPlates(experment.getNumberOfPlates())
-			.versions(new ArrayList<ActivityVersion>())
-			.build();
+	private ActivitySummary buildActivitySummary(Experiment experment) {
+        return	ActivitySummary
+		      	.builder()
+			    .name(experment.getName())
+			    .description(experment.getDescription())
+			    .id(experment.getId())
+			    .numPlates(experment.getNumberOfPlates())
+			    .versions(new ArrayList<ActivityVersion>())
+			    .build();
     }
     
     private ActivityVersion buildActivityVersion(PlateMap plateMap) {
@@ -218,7 +215,7 @@ public class ActivityService<E> {
                .id(plateMap.getId())
                .status(plateMap.getStatus())
                .timestamp(plateMap.getLastModified())
-                .build();
+               .build();
     }
      
 }

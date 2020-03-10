@@ -107,10 +107,17 @@ public class ActivityResource {
             @ApiResponse(code = 200, message = "Successful operation", response = Activity.class),
             @ApiResponse(code = 400, message = "Invalid status value")
     })
+
     @GetMapping("/cabinet/completed/search/{activityName}")
     public ResponseEntity<ResponseEntity<Activity>> getActivity(@PathVariable String activityName) {
         return ResponseEntity.ok(activityService.getActivitiesList(activityName));
     }
+
+    @ApiOperation(value = "Retrieves activity summary allong with the activuty versions")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Activity.class),
+            @ApiResponse(code = 400, message = "Invalid status value")
+    })
 	@GetMapping("/activitySummary/{activityName}")
     public ResponseEntity<List<ActivitySummary>> getActivitySummary(@PathVariable String activityName) {
         return ResponseEntity.ok(activityService.getActivitySummaryList(activityName));
