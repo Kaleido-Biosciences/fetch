@@ -61,7 +61,7 @@ public class ActivityResource {
             @ApiResponse(code = 400, message = "Activity was not most recent activity, and returns the most up to date activity", response = Activity.class)
     })
     @PostMapping("/save")
-    public ResponseEntity<ResponseEntity<PlateMap>> saveNewActivity(@RequestBody PlateMap plateMap) {
+    public ResponseEntity<ResponseEntity<String>> saveNewActivity(@RequestBody PlateMap plateMap) {
         //TODO: Add call to the service to save the working draft of the activity.
     	plateMap.setStatus("DRAFT");
         return ResponseEntity.ok(activityService.saveNewActivityDraft(plateMap));
@@ -73,7 +73,7 @@ public class ActivityResource {
             @ApiResponse(code = 400, message = "Activity was not most recent activity, and returns the most up to date activity", response = Activity.class)
     })
     @PostMapping("/save/draft")
-    public ResponseEntity<ResponseEntity<PlateMap>> saveActivityDraft(@RequestBody PlateMap plateMap) {
+    public ResponseEntity<ResponseEntity<String>> saveActivityDraft(@RequestBody PlateMap plateMap) {
         //TODO: Add call to the service to save the working draft of the activity.
     	plateMap.setStatus("DRAFT");
         return ResponseEntity.ok(activityService.saveActivityDraft(plateMap));
@@ -85,9 +85,8 @@ public class ActivityResource {
             @ApiResponse(code = 400, message = "Invalid status value")
     })
     @PostMapping("/save/completed")
-    public ResponseEntity<ResponseEntity<PlateMap>> saveCompletedActivity(@RequestBody PlateMap plateMap) {
-        //TODO: Add the call to the service to save
-    	plateMap.setStatus("COMPLETED");
+    public ResponseEntity<ResponseEntity<String>> saveCompletedActivity(@RequestBody PlateMap plateMap) {
+        plateMap.setStatus("COMPLETED");
         return ResponseEntity.ok(activityService.saveActivityDraft(plateMap));
     }
     
