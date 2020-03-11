@@ -1,5 +1,6 @@
 package com.kaleido.fetch.service;
 
+import com.kaleido.cabinet.client.*;
 import com.kaleido.fetch.domain.Activity;
 import com.kaleido.fetch.domain.ActivitySummary;
 import com.kaleido.fetch.domain.ActivityVersion;
@@ -13,6 +14,7 @@ import springfox.documentation.spring.web.json.Json;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -40,12 +42,15 @@ import java.util.stream.Stream;
 public class ActivityService<E> {
 
     private final KaptureClient<Experiment> experimentKaptureClient;
-   
+    private final CabinetClient<PlateMap> cabinetClient;
+    
+    
     @Value("${cabinet.endpoint}")
     private String cabinetURI;
-   
-    public ActivityService(KaptureClient<Experiment> experimentKaptureClient) {
-		this.experimentKaptureClient = experimentKaptureClient;
+
+    public ActivityService(KaptureClient<Experiment> experimentKaptureClient, CabinetClient<PlateMap> cabinetClient) {
+		    this.cabinetClient = cabinetClient;
+		    this.experimentKaptureClient = experimentKaptureClient;
     }
 
     public List<Experiment> findActivities(@PathVariable String searchTerm) {
@@ -96,12 +101,9 @@ public class ActivityService<E> {
     	
     	log.info("Platemap data is ", plateMap);
     	String plateMapURI = cabinetURI + "plate-maps";
-    	RestTemplate restTemplate = new RestTemplate();
-    	HttpHeaders headers = new HttpHeaders();
-    	headers.setContentType(MediaType.APPLICATION_JSON);
-    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
+    	
     	if(!findActivities(plateMap.getActivityName()).isEmpty()) {
-    		return restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, String.class);
+    		return (ResponseEntity<String>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.POST, String.class);
     	}
     	else {
     		return new ResponseEntity<String>(HttpStatus.CONFLICT);
@@ -114,50 +116,34 @@ public class ActivityService<E> {
     	log.info("Platemap data is ", plateMap);
     	String plateMapURI = cabinetURI + "plate-maps";
     	
-    	RestTemplate restTemplate = new RestTemplate();
-    	HttpHeaders headers = new HttpHeaders();
-    	headers.setContentType(MediaType.APPLICATION_JSON);
-    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
-        return restTemplate.exchange(plateMapURI, HttpMethod.PUT, entity, String.class);
+    	return (ResponseEntity<String>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.PUT, String.class);
     }
     
-    public ResponseEntity<PlateMap> saveCompletedActivity(PlateMap plateMap) {
+    public ResponseEntity<String> saveCompletedActivity(PlateMap plateMap) {
     	
     	log.info("Platemap data is ", plateMap);
     	String plateMapURI = cabinetURI + "plate-maps";
     	
-    	RestTemplate restTemplate = new RestTemplate();
-    	HttpHeaders headers = new HttpHeaders();
-    	headers.setContentType(MediaType.APPLICATION_JSON);
-    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
-        return restTemplate.exchange(plateMapURI, HttpMethod.PUT, entity, PlateMap.class);
+    	return (ResponseEntity<String>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.PUT, String.class);
     }
     
     public ResponseEntity<PlateMap[]> getActivitiesPlatemap(PlateMap plateMap) {
     	
     	log.info("PlateMap data is ", plateMap);
-        String plateMapURI = cabinetURI + "plate-maps/details";
+      String plateMapURI = cabinetURI + "plate-maps/details";
     	
-    	RestTemplate restTemplate = new RestTemplate();
-    	HttpHeaders headers = new HttpHeaders();
-    	headers.setContentType(MediaType.APPLICATION_JSON);
-    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
-        return restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, PlateMap[].class);
+    	return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.POST, PlateMap[].class);
     }
     
     public ResponseEntity<PlateMap[]> getActivitiesList(String activityName) {
     	log.debug("Activity name is ", activityName);
-        String plateMapURI = cabinetURI + "plate-maps/details";
+      String plateMapURI = cabinetURI + "plate-maps/details";
     	
-    	RestTemplate restTemplate = new RestTemplate();
-    	HttpHeaders headers = new HttpHeaders();
     	PlateMap plateMap = new PlateMap();
     	plateMap.setActivityName(activityName);
     	plateMap.setStatus("COMPLETED");
-    	headers.setContentType(MediaType.APPLICATION_JSON);
-    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
-        return restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, PlateMap[].class);
-    	
+
+    	return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.POST, PlateMap[].class);
     }
     
     public List<ActivitySummary> getActivitySummaryList(String searchTerm) {
@@ -198,8 +184,8 @@ public class ActivityService<E> {
         ResponseEntity<List<PlateMap>> plateMapResponse =restTemplate.exchange(cabinetplateInfoURI,
                             HttpMethod.GET, null, new ParameterizedTypeReference<List<PlateMap>>() {
                     });
-   		List<PlateMap> plateMapList = plateMapResponse.getBody();
-   		return plateMapList;
+   	    List<PlateMap> plateMapList = plateMapResponse.getBody();
+   	    return plateMapList;
     }
     
     private ActivitySummary buildActivitySummary(Experiment experment) {
