@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -181,11 +182,11 @@ public class ActivityService<E> {
     private List<PlateMap> getPlateMapSummaryFromCabinet(String activityName) {
         RestTemplate restTemplate = new RestTemplate();
         String cabinetplateInfoURI = cabinetURI + "plate-map-summary/"+activityName;
-        ResponseEntity<List<PlateMap>> plateMapResponse =restTemplate.exchange(cabinetplateInfoURI,
-                            HttpMethod.GET, null, new ParameterizedTypeReference<List<PlateMap>>() {
-                    });
-   	    List<PlateMap> plateMapList = plateMapResponse.getBody();
-   	    return plateMapList;
+        ResponseEntity<PlateMap[]> plateMapResponse = (ResponseEntity<PlateMap[]>)cabinetClient.cabinetPlatemap(cabinetplateInfoURI, null, HttpMethod.GET, PlateMap[].class);
+   	    return plateMapResponse.getStatusCode().is2xxSuccessful() && plateMapResponse.getBody() != null ?
+                Arrays.stream(plateMapResponse.getBody())
+                    .collect(Collectors.toList()) :
+                Collections.emptyList();
     }
     
     private ActivitySummary buildActivitySummary(Experiment experment) {
