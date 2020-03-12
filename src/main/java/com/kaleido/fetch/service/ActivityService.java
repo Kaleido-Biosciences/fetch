@@ -2,6 +2,8 @@ package com.kaleido.fetch.service;
 
 import com.kaleido.cabinet.client.*;
 import com.kaleido.fetch.domain.Activity;
+import com.kaleido.fetch.domain.ActivitySummary;
+import com.kaleido.fetch.domain.ActivityVersion;
 import com.kaleido.fetch.domain.PlateMap;
 import com.kaleido.kaptureclient.client.KaptureClient;
 import com.kaleido.kaptureclient.domain.Experiment;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -46,8 +50,8 @@ public class ActivityService<E> {
     private String cabinetURI;
 
     public ActivityService(KaptureClient<Experiment> experimentKaptureClient, CabinetClient<PlateMap> cabinetClient) {
-		this.cabinetClient = cabinetClient;
-		this.experimentKaptureClient = experimentKaptureClient;
+        this.cabinetClient = cabinetClient;
+        this.experimentKaptureClient = experimentKaptureClient;
     }
 
     public List<Experiment> findActivities(@PathVariable String searchTerm) {
@@ -127,14 +131,14 @@ public class ActivityService<E> {
     public ResponseEntity<PlateMap[]> getActivitiesPlatemap(PlateMap plateMap) {
     	
     	log.info("PlateMap data is ", plateMap);
-        String plateMapURI = cabinetURI + "plate-maps/details";
+      String plateMapURI = cabinetURI + "plate-maps/details";
     	
     	return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.POST, PlateMap[].class);
     }
     
     public ResponseEntity<PlateMap[]> getActivitiesList(String activityName) {
-    	log.info("Activity name is ", activityName);
-        String plateMapURI = cabinetURI + "plate-maps/details";
+    	log.debug("Activity name is ", activityName);
+      String plateMapURI = cabinetURI + "plate-maps/details";
     	
     	PlateMap plateMap = new PlateMap();
     	plateMap.setActivityName(activityName);
@@ -142,9 +146,21 @@ public class ActivityService<E> {
 
     	return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.POST, PlateMap[].class);
     }
-
+    
+    public List<ActivitySummary> getActivitySummaryList(String searchTerm) {
+        log.debug("ActivitySummary name is ", searchTerm);
+        List<ActivitySummary> activitySummaryList = this.findActivities(searchTerm).stream()
+            .map(this::buildActivitySummary)
+            .collect(Collectors.toList());
+        activitySummaryList.forEach(action ->{
+        action.getVersions().addAll(getPlateMapSummaryFromCabinet(action.getName()).stream()
+                .map(this::buildActivityVersion)
+                .collect(Collectors.toList()));
+        });
+        return activitySummaryList;
+    }
+    
     private List<Experiment> searchExperiment(String searchTerm) {
-    	
         final var mediaResponse = experimentKaptureClient.findByFieldWithOperator("name", searchTerm, "contains");
         return mediaResponse.getStatusCode().is2xxSuccessful() && mediaResponse.getBody() != null ?
                 new ArrayList<>(mediaResponse.getBody()) : //map the responses to a Component
@@ -161,6 +177,35 @@ public class ActivityService<E> {
                 .name(experiment.getName())
                 .description(experiment.getDescription())
                 .build();
+    }
+
+    private List<PlateMap> getPlateMapSummaryFromCabinet(String activityName) {
+        RestTemplate restTemplate = new RestTemplate();
+        String cabinetplateInfoURI = cabinetURI + "plate-map-summary/"+activityName;
+        ResponseEntity<PlateMap[]> plateMapResponse = (ResponseEntity<PlateMap[]>)cabinetClient.cabinetPlatemap(cabinetplateInfoURI, null, HttpMethod.GET, PlateMap[].class);
+        return plateMapResponse.getStatusCode().is2xxSuccessful() && plateMapResponse.getBody() != null ?
+                Arrays.stream(plateMapResponse.getBody())
+                    .collect(Collectors.toList()) :
+                Collections.emptyList();
+    }
+    
+    private ActivitySummary buildActivitySummary(Experiment experment) {
+        return ActivitySummary
+               .builder()
+               .name(experment.getName())
+               .description(experment.getDescription())
+               .id(experment.getId())
+               .numPlates(experment.getNumberOfPlates())
+               .versions(new ArrayList<ActivityVersion>())
+               .build();
+    }
+    
+    private ActivityVersion buildActivityVersion(PlateMap plateMap) {
+        return ActivityVersion.builder()
+               .id(plateMap.getId())
+               .status(plateMap.getStatus())
+               .timestamp(plateMap.getLastModified())
+               .build();
     }
      
 }
