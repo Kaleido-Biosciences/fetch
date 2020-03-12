@@ -50,8 +50,8 @@ public class ActivityService<E> {
     private String cabinetURI;
 
     public ActivityService(KaptureClient<Experiment> experimentKaptureClient, CabinetClient<PlateMap> cabinetClient) {
-		    this.cabinetClient = cabinetClient;
-		    this.experimentKaptureClient = experimentKaptureClient;
+        this.cabinetClient = cabinetClient;
+        this.experimentKaptureClient = experimentKaptureClient;
     }
 
     public List<Experiment> findActivities(@PathVariable String searchTerm) {
@@ -148,19 +148,19 @@ public class ActivityService<E> {
     }
     
     public List<ActivitySummary> getActivitySummaryList(String searchTerm) {
-  	    log.debug("ActivitySummary name is ", searchTerm);
-  	    List<ActivitySummary> activitySummaryList = this.findActivities(searchTerm).stream()
-  	        .map(this::buildActivitySummary)
-  	        .collect(Collectors.toList());
-  	    activitySummaryList.forEach(action ->{
-  		    action.getVersions().addAll(getPlateMapSummaryFromCabinet(action.getName()).stream()
-  		        .map(this::buildActivityVersion)
-  		        .collect(Collectors.toList()));
-  	    });
+        log.debug("ActivitySummary name is ", searchTerm);
+        List<ActivitySummary> activitySummaryList = this.findActivities(searchTerm).stream()
+            .map(this::buildActivitySummary)
+            .collect(Collectors.toList());
+        activitySummaryList.forEach(action ->{
+        action.getVersions().addAll(getPlateMapSummaryFromCabinet(action.getName()).stream()
+                .map(this::buildActivityVersion)
+                .collect(Collectors.toList()));
+        });
         return activitySummaryList;
     }
     
-   private List<Experiment> searchExperiment(String searchTerm) {
+    private List<Experiment> searchExperiment(String searchTerm) {
         final var mediaResponse = experimentKaptureClient.findByFieldWithOperator("name", searchTerm, "contains");
         return mediaResponse.getStatusCode().is2xxSuccessful() && mediaResponse.getBody() != null ?
                 new ArrayList<>(mediaResponse.getBody()) : //map the responses to a Component
@@ -178,12 +178,12 @@ public class ActivityService<E> {
                 .description(experiment.getDescription())
                 .build();
     }
-   
+
     private List<PlateMap> getPlateMapSummaryFromCabinet(String activityName) {
         RestTemplate restTemplate = new RestTemplate();
         String cabinetplateInfoURI = cabinetURI + "plate-map-summary/"+activityName;
         ResponseEntity<PlateMap[]> plateMapResponse = (ResponseEntity<PlateMap[]>)cabinetClient.cabinetPlatemap(cabinetplateInfoURI, null, HttpMethod.GET, PlateMap[].class);
-   	    return plateMapResponse.getStatusCode().is2xxSuccessful() && plateMapResponse.getBody() != null ?
+        return plateMapResponse.getStatusCode().is2xxSuccessful() && plateMapResponse.getBody() != null ?
                 Arrays.stream(plateMapResponse.getBody())
                     .collect(Collectors.toList()) :
                 Collections.emptyList();
@@ -191,13 +191,13 @@ public class ActivityService<E> {
     
     private ActivitySummary buildActivitySummary(Experiment experment) {
         return ActivitySummary
-  		  	   .builder()
-  		 	   .name(experment.getName())
-  	   	 	   .description(experment.getDescription())
-  		 	   .id(experment.getId())
-  		 	   .numPlates(experment.getNumberOfPlates())
-  		 	   .versions(new ArrayList<ActivityVersion>())
-  		 	   .build();
+               .builder()
+               .name(experment.getName())
+               .description(experment.getDescription())
+               .id(experment.getId())
+               .numPlates(experment.getNumberOfPlates())
+               .versions(new ArrayList<ActivityVersion>())
+               .build();
     }
     
     private ActivityVersion buildActivityVersion(PlateMap plateMap) {

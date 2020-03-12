@@ -154,16 +154,16 @@ public class FetchService {
         List <String> barcodeArray = new ArrayList <String> ();
         ResponseEntity <List<Experiment>> experimentList = experimentKaptureClient.findByFieldEquals("name", activityName);
         if(null!=experimentList.getBody() && !experimentList.getBody().isEmpty()) {
-        	var expertimentId = experimentList.getBody().get(0).getId().toString();
-        	if (experimentList.getStatusCode().is2xxSuccessful() && experimentList.getBody() != null && experimentList.getBody().size() > 0) {
-        		var platmapsfromrepository = plateMapKaptureClient.findByFieldEquals("experimentId", expertimentId);
-        		if (platmapsfromrepository.getStatusCode().is2xxSuccessful() && platmapsfromrepository.getBody() != null) {
-        			platmapsfromrepository.getBody().stream()
-        			.forEach(plate -> {
-        				barcodeArray.add(plate.getBarcode());
-        			});
-        		}
-        	}
+            var expertimentId = experimentList.getBody().get(0).getId().toString();
+            if (experimentList.getStatusCode().is2xxSuccessful() && experimentList.getBody() != null && experimentList.getBody().size() > 0) {
+                var platmapsfromrepository = plateMapKaptureClient.findByFieldEquals("experimentId", expertimentId);
+                if (platmapsfromrepository.getStatusCode().is2xxSuccessful() && platmapsfromrepository.getBody() != null) {
+                    platmapsfromrepository.getBody().stream()
+                    .forEach(plate -> {
+                        barcodeArray.add(plate.getBarcode());
+                    });
+                }
+            }
         }
         return barcodeArray;
     }
@@ -375,4 +375,4 @@ public class FetchService {
             ))
             .build();
     }
-  }
+}
