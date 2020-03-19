@@ -204,6 +204,7 @@ public class ActivityService<E> {
         return ActivityVersion.builder()
                .id(plateMap.getId())
                .status(plateMap.getStatus())
+               .numPlates(plateMap.getNumPlates())
                .timestamp(plateMap.getLastModified())
                .build();
     }
