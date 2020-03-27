@@ -114,7 +114,7 @@ public class ActivityService<E> {
     }
 
     public ResponseEntity<String> saveActivityDraft(PlateMap plateMap) {
-        log.info("Platemap data is ", plateMap);
+        log.debug("Platemap data is ", plateMap);
         String plateMapURI = cabinetURI + "plate-maps";
         
         return (ResponseEntity<String>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.PUT, String.class);
