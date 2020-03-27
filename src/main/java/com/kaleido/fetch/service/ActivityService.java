@@ -101,7 +101,7 @@ public class ActivityService<E> {
     
     public ResponseEntity<String> saveNewActivityDraft(PlateMap plateMap) {
     	
-    	log.info("Platemap data is ", plateMap);
+    	log.debug("Platemap data is ", plateMap);
     	String plateMapURI = cabinetURI + "plate-maps";
     	
     	if(!findActivities(plateMap.getActivityName()).isEmpty()) {
@@ -114,28 +114,28 @@ public class ActivityService<E> {
     }
 
     public ResponseEntity<String> saveActivityDraft(PlateMap plateMap) {
-        log.info("Platemap data is ", plateMap);
+        log.debug("Platemap data is ", plateMap);
         String plateMapURI = cabinetURI + "plate-maps";
         
         return (ResponseEntity<String>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.PUT, String.class);
     }
     
     public ResponseEntity<String> saveCompletedActivity(PlateMap plateMap) {
-        log.info("Platemap data is ", plateMap);
+        log.debug("Platemap data is ", plateMap);
         String plateMapURI = cabinetURI + "plate-maps";
         
         return (ResponseEntity<String>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.PUT, String.class);
     }
     
     public ResponseEntity<PlateMap[]> getActivitiesPlatemap(PlateMap plateMap) {
-        log.info("PlateMap data is ", plateMap);
+        log.debug("PlateMap data is ", plateMap);
         String plateMapURI = cabinetURI + "plate-maps/details";
         
         return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.POST, PlateMap[].class);
     }
     
     public ResponseEntity<PlateMap[]> getActivitiesList(String activityName) {
-        log.debug("Activity name is ", activityName);
+        log.info("Activity name is ", activityName);
         String plateMapURI = cabinetURI + "plate-maps/details";
 
         PlateMap plateMap = new PlateMap();
@@ -149,36 +149,30 @@ public class ActivityService<E> {
         log.info("Activity name is ", activityName);
         String plateMapURI = cabinetURI + "/plate-maps/data/completed/"+activityName;
         
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(headers);
+        //This is created just to follow the cabinet client but it is not used
+        PlateMap plateMap = new PlateMap();
 
-        return (ResponseEntity<PlateMap[]>) restTemplate.exchange(plateMapURI, HttpMethod.GET, entity, PlateMap[].class);
+        return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.GET, PlateMap[].class);
     }
     
     public ResponseEntity<PlateMap[]> getDraftPayload(String activityName) {
         log.info("Activity name is ", activityName);
         String plateMapURI = cabinetURI + "/plate-maps/data/draft/"+activityName;
 
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(headers);
+        //This is created just to follow the cabinet client but it is not used
+        PlateMap plateMap = new PlateMap();
 
-        return (ResponseEntity<PlateMap[]>) restTemplate.exchange(plateMapURI, HttpMethod.GET, entity, PlateMap[].class);
+        return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.GET, PlateMap[].class);
     }
     
     public ResponseEntity<PlateMap[]> getSpecificCompletedPayload(String checksum){
         log.info("Checksum value is ", checksum);
         String plateMapURI = cabinetURI + "/plate-maps/data/"+checksum;
-   
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(headers);
         
-        return (ResponseEntity<PlateMap[]>) restTemplate.exchange(plateMapURI, HttpMethod.GET, entity, PlateMap[].class);
+        //This is created just to follow the cabinet client but it is not used
+        PlateMap plateMap = new PlateMap();
+        
+        return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.GET, PlateMap[].class);
     }
 
     public List<ActivitySummary> getActivitySummaryList(String searchTerm) {
