@@ -128,7 +128,7 @@ public class ActivityService<E> {
     }
     
     public ResponseEntity<PlateMap[]> getActivitiesPlatemap(PlateMap plateMap) {
-        log.info("PlateMap data is ", plateMap);
+        log.debug("PlateMap data is ", plateMap);
         String plateMapURI = cabinetURI + "plate-maps/details";
         
         return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.POST, PlateMap[].class);
