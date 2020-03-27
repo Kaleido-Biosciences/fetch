@@ -58,17 +58,17 @@ GET `/components/search/{searchTerm}`
 POST `/components/find` - Send in the body a JSON array of tuples and the response will return the relevant object
 ```json
 [
-	{"id": 2101,
+    {"id": 2101,
      "classification": "Supplement"},
-	{"id": 1401,
+    {"id": 1401,
      "classification": "Media"},
-	{"id": 1351,
+    {"id": 1351,
      "classification": "Community"},
-	{"id": 1402,
+    {"id": 1402,
      "classification": "Media"},
-	{"id": 2102,
+    {"id": 2102,
      "classification": "Supplement"},
-	{"id": 1251,
+    {"id": 1251,
      "classification": "Batch"}
 ]
 ```
@@ -81,7 +81,7 @@ POST `/activities/save` -  Saves a new activity by sending in the body
 ```json
 {
     "activityName": "G001",
-	"data": "zip data"
+    "data": "zip data"
 }
 ```
 
@@ -90,8 +90,8 @@ POST `/activities/save/draft` -  Updates existing activity and just saved as dra
 {
     "id": 1,
     "activityName": "G001",
-	"checksum": "12314124",
-	"data": "zip data"
+    "checksum": "12314124",
+    "data": "zip data"
 }
 ```
 
@@ -100,8 +100,8 @@ POST `/activities/save/completed` -  Updates existing activity and saved it as c
 {
     "id": 1,
     "activityName": "G001",
-	"checksum": "12314124",
-	"data": "zip data"
+    "checksum": "12314124",
+    "data": "zip data"
 }
 ```
 
