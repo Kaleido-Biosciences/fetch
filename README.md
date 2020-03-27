@@ -73,44 +73,6 @@ POST `/components/find` - Send in the body a JSON array of tuples and the respon
 ]
 ```
 
-GET `/activities/barcodes/{activityName}` -  Returns list of barcodes under the activityName
-
-GET `/activities/activitySummary/{activityName}` - Returns summaries of activities under the activityName
-
-POST `/activities/save` -  Saves a new activity by sending in the body
-```json
-{
-    "activityName": "G001",
-	"data": "zip data"
-}
-```
-
-POST `/activities/save/draft` -  Updates existing activity and just saved as draft
-```json
-{
-    "id": 1,
-    "activityName": "G001",
-	"checksum": "12314124",
-	"data": "zip data"
-}
-```
-
-POST `/activities/save/completed` -  Updates existing activity and saved it as completed
-```json
-{
-    "id": 1,
-    "activityName": "G001",
-	"checksum": "12314124",
-	"data": "zip data"
-}
-```
-
-GET `/activities/cabinet/completedlist/{activityName}` - Retrieves list of all completed platemap under the activityName
-
-GET `/activities/cabinet/draft/{activityName}` - Retrieves draft data under the activityName
-
-GET `/activities/cabinet/completed/{checksum}` - Retrieve the specified completed platemap data based on the checksum
-
 GET `/activities/search/{searchTerm}` - Finds activities based on a search parameter. The activity is the root of everything in atlas
 
 ## Built With
