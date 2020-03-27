@@ -3,6 +3,7 @@ package com.kaleido.fetch.resource;
 import com.kaleido.fetch.domain.Component;
 import com.kaleido.fetch.service.FetchService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -13,16 +14,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import java.util.ArrayList;
 import java.util.List;
 
 @Api("Fetch Operations")
 @RestController
 @RequestMapping("/")
 public class FetchResource {
-
-    private final FetchService fetchService;
-
+	private final FetchService fetchService;
     public FetchResource(FetchService fetchService) {
         this.fetchService = fetchService;
     }
@@ -55,5 +54,10 @@ public class FetchResource {
     public ResponseEntity<List<Component>> getComponentsByClassificationAndId(@RequestBody List<Component> searchComponents) {
         return ResponseEntity.ok(fetchService.getComponentsByClassificationAndId(searchComponents));
     }
+    @GetMapping("/activities/barcodes/{activityName}")
+    public ResponseEntity<List<String>> getBarcodesByActivityName(@PathVariable String activityName) {
+    	return ResponseEntity.ok(fetchService.getAllBarcodes(activityName));
+    }
+  
 
 }

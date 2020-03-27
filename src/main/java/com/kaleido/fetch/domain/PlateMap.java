@@ -23,14 +23,17 @@ public class PlateMap {
 
     @ApiModelProperty(value = "Plate map data associated with the activity. Note: This string is currently LZW encoded as the plain text is quite large")
     private String data;
-    
+
     @ApiModelProperty(value = "Status of activity, DRAFT or COMPLETED")
     private String status;
-    
+
     @ApiModelProperty(value = "The name of activity, use for grouping on")
     private String activityName;
-    
+
     @ApiModelProperty("The checksum is used when saving a new draft, as the last checksum has to be passed\nand match the most recent timestamp. Otherwise it is considered attempting to save a stale draft")
     private String checksum;
-    
+
+    @ApiModelProperty(value = "The number of plates in the platemap")
+    private int numPlates;
+
 }

@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019. Kaleido Biosciences. All Rights Reserved
- */
-
 package com.kaleido.cabinet.client;
 
 import org.slf4j.Logger;
@@ -32,7 +28,7 @@ public class CabinetResponseErrorHandler implements ResponseErrorHandler {
     @Override
     public void handleError(ClientHttpResponse httpResponse)
             throws IOException {
-
+    	
         if (httpResponse.getStatusCode().equals(HttpStatus.BAD_GATEWAY)) {
             throw new CabinetClientHTTPException.CabinetClientBadGatewayException(httpResponse.getStatusCode());
         } else if (httpResponse.getStatusCode().equals(HttpStatus.GATEWAY_TIMEOUT)) {
@@ -42,7 +38,5 @@ public class CabinetResponseErrorHandler implements ResponseErrorHandler {
         } else if (httpResponse.getStatusCode().series() == CLIENT_ERROR){
             throw new HttpClientErrorException(httpResponse.getStatusCode(), httpResponse.getStatusText());
         }
-
-
     }
 }
