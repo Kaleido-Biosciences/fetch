@@ -99,14 +99,14 @@ public class ActivityResource {
         return ResponseEntity.ok(activityService.getActivitiesPlatemap(plateMap));
     }
     
-    @ApiOperation(value = "Retrieves the list of completed activity for the given activityName and timestamp")
+    @ApiOperation(value = "Retrieves the list of completed activity for the given activityName")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = PlateMap[].class),
             @ApiResponse(code = 400, message = "Invalid status value")
     })
-    @PostMapping("/cabinet/completed")
-    public ResponseEntity<ResponseEntity<Activity>> getCompletedActivity(@RequestBody PlateMap plateMap) {
-        return ResponseEntity.ok(activityService.getCompletedPayload(plateMap));
+    @GetMapping("/cabinet/completedlist/{activityName}")
+    public ResponseEntity<ResponseEntity<Activity>> getCompletedActivity(@PathVariable String activityName) {
+        return ResponseEntity.ok(activityService.getCompletedPayloadList(activityName));
     }
     
     @ApiOperation(value = "Retrieves the list of draft activity for the given activityName")
@@ -117,6 +117,16 @@ public class ActivityResource {
     @GetMapping("/cabinet/draft/{activityName}")
     public ResponseEntity<ResponseEntity<Activity>> getDraftActivity(@PathVariable String activityName) {
         return ResponseEntity.ok(activityService.getDraftPayload(activityName));
+    }
+    
+    @ApiOperation(value = "Retrieves a specific completed payload based on checksum")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = PlateMap[].class),
+            @ApiResponse(code = 400, message = "Invalid status value")
+    })
+    @GetMapping("/cabinet/completed/{checksum}")
+    public ResponseEntity<ResponseEntity<Activity>> getSpecificCompletedActivity(@PathVariable String checksum) {
+        return ResponseEntity.ok(activityService.getSpecificCompletedPayload(checksum));
     }
     
     @ApiOperation(value = "Retrieves the activity summary details by given activity name")

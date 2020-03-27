@@ -148,21 +148,16 @@ public class ActivityService<E> {
     	return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.POST, PlateMap[].class);
     }
     
-    public ResponseEntity<PlateMap[]> getCompletedPayload(PlateMap plateMap) {
-    	log.info("Activity name is ", plateMap);
-        String plateMapURI = cabinetURI + "/plate-maps/data/completed";
+    public ResponseEntity<PlateMap[]> getCompletedPayloadList(String activityName) {
+    	log.info("Activity name is ", activityName);
+        String plateMapURI = cabinetURI + "/plate-maps/data/completed/"+activityName;
         
         RestTemplate restTemplate = new RestTemplate();
-    	HttpHeaders headers = new HttpHeaders();
-    	headers.setContentType(MediaType.APPLICATION_JSON);
-    	String username = "admin";
-    	String password = "admin";
-    	headers.setBasicAuth(username, password);
-    	plateMap.setLastModified((ZonedDateTime)plateMap.getLastModified());
-    			//'Jan 15, 2020, 7:00:29 PM
-    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(plateMap,headers);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(headers);
 
-    	return (ResponseEntity<PlateMap[]>) restTemplate.exchange(plateMapURI, HttpMethod.POST, entity, PlateMap[].class);
+    	return (ResponseEntity<PlateMap[]>) restTemplate.exchange(plateMapURI, HttpMethod.GET, entity, PlateMap[].class);
     }
     
     public ResponseEntity<PlateMap[]> getDraftPayload(String activityName) {
@@ -170,14 +165,23 @@ public class ActivityService<E> {
         String plateMapURI = cabinetURI + "/plate-maps/data/draft/"+activityName;
     	
         RestTemplate restTemplate = new RestTemplate();
-    	HttpHeaders headers = new HttpHeaders();
-    	headers.setContentType(MediaType.APPLICATION_JSON);
-    	String username = "admin";
-    	String password = "admin";
-    	headers.setBasicAuth(username, password);
-    	HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(headers);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(headers);
 
     	return (ResponseEntity<PlateMap[]>) restTemplate.exchange(plateMapURI, HttpMethod.GET, entity, PlateMap[].class);
+    }
+    
+    public ResponseEntity<PlateMap[]> getSpecificCompletedPayload(String checksum){
+    	log.info("Checksum value is ", checksum);
+    	String plateMapURI = cabinetURI + "/plate-maps/data/"+checksum;
+    
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<PlateMap> entity = new HttpEntity<PlateMap>(headers);
+        
+        return (ResponseEntity<PlateMap[]>) restTemplate.exchange(plateMapURI, HttpMethod.GET, entity, PlateMap[].class);
     }
 
     public List<ActivitySummary> getActivitySummaryList(String searchTerm) {
