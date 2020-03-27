@@ -27,5 +27,9 @@ public class ActivitySummary {
     private ZonedDateTime lastModified;
 
     @ApiModelProperty(value = "List of IDs for versions along with timestamps of when they were completed.")
-    private List<ActivityVersion> completedVersions;
+    private List<ActivityVersion> versions;
+    
+    @ApiModelProperty(value = "The number of plates that are in the version.")
+    private int numPlates;
+    
 }

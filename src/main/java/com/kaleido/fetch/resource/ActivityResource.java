@@ -1,6 +1,7 @@
 package com.kaleido.fetch.resource;
 
 import com.kaleido.fetch.domain.Activity;
+import com.kaleido.fetch.domain.ActivitySummary;
 import com.kaleido.fetch.domain.PlateMap;
 import com.kaleido.fetch.service.ActivityService;
 import com.kaleido.kaptureclient.domain.Experiment;
@@ -84,8 +85,7 @@ public class ActivityResource {
     })
     @PostMapping("/save/completed")
     public ResponseEntity<ResponseEntity<String>> saveCompletedActivity(@RequestBody PlateMap plateMap) {
-        //TODO: Add the call to the service to save
-    	plateMap.setStatus("COMPLETED");
+        plateMap.setStatus("COMPLETED");
         return ResponseEntity.ok(activityService.saveActivityDraft(plateMap));
     }
     
@@ -118,4 +118,14 @@ public class ActivityResource {
     public ResponseEntity<ResponseEntity<Activity>> getDraftActivity(@PathVariable String activityName) {
         return ResponseEntity.ok(activityService.getDraftPayload(activityName));
     }
+    
+    @ApiOperation(value = "Retrieves the activity summary details by given activity name")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Activity.class),
+            @ApiResponse(code = 400, message = "Invalid status value")
+    })
+    @GetMapping("/activitySummary/{activityName}")
+    public ResponseEntity<List<ActivitySummary>> getActivitySummary(@PathVariable String activityName) {
+         return ResponseEntity.ok(activityService.getActivitySummaryList(activityName));
+     }
 }

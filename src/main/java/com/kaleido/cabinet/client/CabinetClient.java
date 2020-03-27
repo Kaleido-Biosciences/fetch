@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2019. Kaleido Biosciences. All Rights Reserved
- */
-
 package com.kaleido.cabinet.client;
 
 import org.slf4j.Logger;
@@ -282,9 +278,6 @@ public class CabinetClient<E> {
                 if (id == null) {
                     //no id, POST it
                 	HttpHeaders headers = new HttpHeaders();
-                	String username = "admin";
-                	String password = "admin";
-                	headers.setBasicAuth(username, password);
                 	headers.setContentType(MediaType.APPLICATION_JSON);
                 	HttpEntity<PlateMap> plateEntity = new HttpEntity<PlateMap>((PlateMap)entity,headers);
                     //return restTemplate.exchange(endpoint, HttpMethod.POST, entity, classType);
@@ -292,7 +285,7 @@ public class CabinetClient<E> {
                 } else {
                     //got an id, PUT it
                     HttpEntity<E> httpEntity = new HttpEntity<>(entity);
-                    return restTemplate.exchange(endpoint, HttpMethod.PUT, httpEntity, entityClass);
+                    return restTemplate.exchange(endpoint, HttpMethod.PUT, httpEntity, String.class);
                 }
             } catch (IntrospectionException | ReflectiveOperationException e) {
                 log.error("Error accessing ID of entity {}", entity);

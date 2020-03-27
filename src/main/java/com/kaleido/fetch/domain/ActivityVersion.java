@@ -19,6 +19,9 @@ public class ActivityVersion {
     @ApiModelProperty(value = "Timestamp the activity was marked as completed/saved.")
     private ZonedDateTime timestamp;
 
+    @ApiModelProperty(value = "Current status of the plate map.")
+    private String status;
+
     @ApiModelProperty(value = "The number of plates that are in the version.")
-    private ZonedDateTime numPlates;
+    private int numPlates;
 }
