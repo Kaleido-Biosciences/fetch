@@ -117,7 +117,15 @@ public class ActivityService<E> {
         log.debug("Platemap data is ", plateMap);
         String plateMapURI = cabinetURI + "plate-maps";
         
-        return (ResponseEntity<String>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.PUT, String.class);
+        ResponseEntity<String> response = (ResponseEntity<String>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.PUT, String.class);
+
+        if (response.getStatusCodeValue() == 404) {
+            return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+        }
+        else {
+            return response;
+        }
+           
     }
     
     public ResponseEntity<String> saveCompletedActivity(PlateMap plateMap) {
