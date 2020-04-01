@@ -17,6 +17,8 @@ public class CabinetClientProperties {
 
     private String username = "admin";
     private String password = "admin";
+    // This link can be changed to localhost:8080/api/ if fetch is not deployed as a docker
+    //private String base = "http://host.docker.internal:8080/api/";
     private String base = "http://localhost:8080/api/";
 
     private String searchPathComponent = "_search";
