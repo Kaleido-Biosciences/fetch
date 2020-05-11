@@ -196,6 +196,14 @@ public class ActivityService<E> {
         return activitySummaryList;
     }
     
+    public ResponseEntity<Experiment> retrieveActivityByName(String name) {
+        HttpHeaders responseHeaders = new HttpHeaders();
+        
+        List<Experiment> response = (List<Experiment>) findActivities(name);
+
+        return new ResponseEntity<Experiment>(response.get(0),responseHeaders, HttpStatus.OK);
+    }
+    
     private List<Experiment> searchExperiment(String searchTerm) {
         final var mediaResponse = experimentKaptureClient.findByFieldWithOperator("name", searchTerm, "contains");
         return mediaResponse.getStatusCode().is2xxSuccessful() && mediaResponse.getBody() != null ?
