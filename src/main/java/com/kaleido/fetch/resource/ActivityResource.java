@@ -137,5 +137,15 @@ public class ActivityResource {
     @GetMapping("/activitySummary/{activityName}")
     public ResponseEntity<List<ActivitySummary>> getActivitySummary(@PathVariable String activityName) {
          return ResponseEntity.ok(activityService.getActivitySummaryList(activityName));
-     }
+    }
+    
+    @ApiOperation(value = "Retrieves the activity details based on given name")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successful operation", response = Experiment.class),
+            @ApiResponse(code = 400, message = "Invalid status value")
+    })
+    @GetMapping("/{name}")
+    public ResponseEntity<ResponseEntity<Experiment>> getActivityId(@PathVariable String name) {
+         return ResponseEntity.ok(activityService.retrieveActivityByName(name));
+    }
 }

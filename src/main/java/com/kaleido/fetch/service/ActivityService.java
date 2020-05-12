@@ -196,6 +196,18 @@ public class ActivityService<E> {
         return activitySummaryList;
     }
     
+    public ResponseEntity<E> retrieveActivityByName(String name) {
+        HttpHeaders responseHeaders = new HttpHeaders();
+        
+        List<Experiment> response = (List<Experiment>) findActivities(name);
+        
+        if(response.isEmpty()) {
+            return (ResponseEntity<E>) new ResponseEntity<String>("No results found",responseHeaders, HttpStatus.NOT_FOUND);
+        }
+
+        return (ResponseEntity<E>) new ResponseEntity<Experiment>(response.get(0),responseHeaders, HttpStatus.OK);
+    }
+    
     private List<Experiment> searchExperiment(String searchTerm) {
         final var mediaResponse = experimentKaptureClient.findByFieldWithOperator("name", searchTerm, "contains");
         return mediaResponse.getStatusCode().is2xxSuccessful() && mediaResponse.getBody() != null ?
