@@ -32,8 +32,8 @@ public class ActivityResource {
             @ApiResponse(code = 400, message = "Invalid status value")
     })
     @GetMapping("/search/{searchTerm}")
-    public ResponseEntity<List<Experiment>> searchActivities(@PathVariable String searchTerm) {
-        return ResponseEntity.ok(activityService.findActivities(searchTerm));
+    public ResponseEntity<ResponseEntity<List<Experiment>>> searchActivities(@PathVariable String searchTerm) {
+        return ResponseEntity.ok(activityService.responseSearch(searchTerm));
     }
 
     @ApiOperation(value = "Retrieves the list of completed versions for the given activity id")

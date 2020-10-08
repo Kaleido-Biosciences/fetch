@@ -196,6 +196,14 @@ public class ActivityService<E> {
         return activitySummaryList;
     }
     
+    public ResponseEntity<List<Experiment>> responseSearch(String name) {
+        HttpHeaders responseHeaders = new HttpHeaders();
+        
+        List<Experiment> response = (List<Experiment>) findActivities(name);
+
+        return (ResponseEntity<List<Experiment>>) new ResponseEntity<List<Experiment>>(response,responseHeaders, HttpStatus.OK);
+    }
+    
     public ResponseEntity<E> retrieveActivityByName(String name) {
         HttpHeaders responseHeaders = new HttpHeaders();
         
