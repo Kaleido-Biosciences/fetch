@@ -58,20 +58,58 @@ GET `/components/search/{searchTerm}`
 POST `/components/find` - Send in the body a JSON array of tuples and the response will return the relevant object
 ```json
 [
-	{"id": 2101,
+    {"id": 2101,
      "classification": "Supplement"},
-	{"id": 1401,
+    {"id": 1401,
      "classification": "Media"},
-	{"id": 1351,
+    {"id": 1351,
      "classification": "Community"},
-	{"id": 1402,
+    {"id": 1402,
      "classification": "Media"},
-	{"id": 2102,
+    {"id": 2102,
      "classification": "Supplement"},
-	{"id": 1251,
+    {"id": 1251,
      "classification": "Batch"}
 ]
 ```
+
+GET `/activities/barcodes/{activityName}` -  Returns list of barcodes under the activityName
+
+GET `/activities/activitySummary/{activityName}` - Returns summaries of activities under the activityName
+
+POST `/activities/save` -  Saves a new activity by sending in the body
+```json
+{
+    "activityName": "G001",
+    "data": "zip data"
+}
+```
+
+POST `/activities/save/draft` -  Updates existing activity and just saved as draft
+```json
+{
+    "id": 1,
+    "activityName": "G001",
+    "checksum": "12314124",
+    "data": "zip data"
+}
+```
+
+POST `/activities/save/completed` -  Updates existing activity and saved it as completed
+```json
+{
+    "id": 1,
+    "activityName": "G001",
+    "checksum": "12314124",
+    "data": "zip data"
+}
+```
+
+GET `/activities/cabinet/completedlist/{activityName}` - Retrieves list of all completed platemap under the activityName
+
+GET `/activities/cabinet/draft/{activityName}` - Retrieves draft data under the activityName
+
+GET `/activities/cabinet/completed/{checksum}` - Retrieve the specified completed platemap data based on the checksum
 
 GET `/activities/search/{searchTerm}` - Finds activities based on a search parameter. The activity is the root of everything in atlas
 
