@@ -51,6 +51,7 @@ public class ActivityService<E> {
     private String cabinetURI;
 
     public ActivityService(KaptureClient<Experiment> experimentKaptureClient, CabinetClient<PlateMap> cabinetClient) {
+        log.info("cabinet URI is ", cabinetURI);
         this.cabinetClient = cabinetClient;
         this.experimentKaptureClient = experimentKaptureClient;
     }
