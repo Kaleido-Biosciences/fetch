@@ -47,7 +47,7 @@ public class ActivityService<E> {
     private final CabinetClient<PlateMap> cabinetClient;
     
     
-    @Value("${cabinet.endpoint}")
+    @Value("${cabinet.url}")
     private String cabinetURI;
 
     public ActivityService(KaptureClient<Experiment> experimentKaptureClient, CabinetClient<PlateMap> cabinetClient) {
