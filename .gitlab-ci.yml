@@ -20,7 +20,7 @@ maven-build:
     before_script:
         - chmod +x mvnw
     variables:
-      CABINET_ENDPOINT: ${CABINET_URL}
+      #CABINET_URL: ${CABINET_URL}
       FETCH_ENDPOINT: ${FETCH_URL}
     script:
       - ./mvnw compile -Dspring.profiles.active=prod -DskipTests
