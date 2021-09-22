@@ -1,15 +1,18 @@
 package com.kaleido.fetch.service;
 
-import com.kaleido.cabinet.client.*;
+import com.kaleido.cabinetclient.client.CabinetClient;
+import com.kaleido.cabinetclient.domain.CabinetPlateMap;
+import com.kaleido.cabinetclient.domain.enumeration.Status;
 import com.kaleido.fetch.domain.Activity;
 import com.kaleido.fetch.domain.ActivitySummary;
 import com.kaleido.fetch.domain.ActivityVersion;
-import com.kaleido.fetch.domain.PlateMap;
+import com.kaleido.fetch.domain.enumeration.PlateMapStatus;
 import com.kaleido.kaptureclient.client.KaptureClient;
 import com.kaleido.kaptureclient.domain.Experiment;
 import com.kaleido.kaptureclient.domain.Platemap;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import springfox.documentation.spring.web.json.Json;
 
 import org.springframework.stereotype.Service;
@@ -44,15 +47,13 @@ import java.util.stream.Stream;
 public class ActivityService<E> {
 
     private final KaptureClient<Experiment> experimentKaptureClient;
-    private final CabinetClient<PlateMap> cabinetClient;
-    
-    
-    @Value("${CABINET.URL}")
-    private String cabinetURI;
+    private final CabinetClient<CabinetPlateMap> plateMapCabinetClient;
 
-    public ActivityService(KaptureClient<Experiment> experimentKaptureClient, CabinetClient<PlateMap> cabinetClient) {
-        log.info("cabinet URI is ", cabinetURI);
-        this.cabinetClient = cabinetClient;
+
+
+    public ActivityService(KaptureClient<Experiment> experimentKaptureClient, CabinetClient<CabinetPlateMap> plateMapCabinetClient) {
+        log.info("cabinet URI is ", "");
+        this.plateMapCabinetClient = plateMapCabinetClient;
         this.experimentKaptureClient = experimentKaptureClient;
     }
 
@@ -99,89 +100,88 @@ public class ActivityService<E> {
         experimentKaptureClient.find(id);
         return new Activity();
     }
-    
-    public ResponseEntity<String> saveNewActivityDraft(PlateMap plateMap) {
-    	
+
+    public ResponseEntity<Object> saveNewActivityDraft(CabinetPlateMap plateMap) {
+        plateMap.setStatus(Status.DRAFT);
     	log.debug("Platemap data is ", plateMap);
-    	String plateMapURI = cabinetURI + "plate-maps";
-    	
+
     	if(!findActivities(plateMap.getActivityName()).isEmpty()) {
-    		return (ResponseEntity<String>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.POST, String.class);
+    	    ResponseEntity<CabinetPlateMap> responseEntity = plateMapCabinetClient.save(plateMap);
+            return new ResponseEntity<>(responseEntity, responseEntity.getStatusCode());
     	}
     	else {
-    		return new ResponseEntity<String>(HttpStatus.CONFLICT);
+            return new ResponseEntity<>(plateMap, HttpStatus.CONFLICT);
     	}
-    	
+
     }
 
-    public ResponseEntity<String> saveActivityDraft(PlateMap plateMap) {
+    public ResponseEntity<Object> saveActivity(CabinetPlateMap plateMap, PlateMapStatus plateMapStatus) {
+        plateMap.setStatus(Status.valueOf(plateMapStatus.name()));
         log.debug("Platemap data is ", plateMap);
-        String plateMapURI = cabinetURI + "plate-maps";
-        
-        ResponseEntity<String> response = (ResponseEntity<String>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.PUT, String.class);
 
-        if (response.getStatusCodeValue() == 404) {
-            return new ResponseEntity<String>(HttpStatus.NOT_FOUND);
+        ResponseEntity<CabinetPlateMap> responseEntity = plateMapCabinetClient.save(plateMap);
+
+        if (responseEntity.getStatusCodeValue() == 404) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         else {
-            return response;
+            return new ResponseEntity<>(responseEntity, responseEntity.getStatusCode());
         }
-           
-    }
-    
-    public ResponseEntity<String> saveCompletedActivity(PlateMap plateMap) {
-        log.debug("Platemap data is ", plateMap);
-        String plateMapURI = cabinetURI + "plate-maps";
-        
-        return (ResponseEntity<String>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.PUT, String.class);
-    }
-    
-    public ResponseEntity<PlateMap[]> getActivitiesPlatemap(PlateMap plateMap) {
-        log.debug("PlateMap data is ", plateMap);
-        String plateMapURI = cabinetURI + "plate-maps/details";
-        
-        return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.POST, PlateMap[].class);
-    }
-    
-    public ResponseEntity<PlateMap[]> getActivitiesList(String activityName) {
-        log.info("Activity name is ", activityName);
-        String plateMapURI = cabinetURI + "plate-maps/details";
 
-        PlateMap plateMap = new PlateMap();
+    }
+
+    public ResponseEntity<CabinetPlateMap[]> getActivitiesPlatemap(CabinetPlateMap plateMap) {
+        log.debug("CabinetPlateMap data is ", plateMap);
+     //   String plateMapURI = cabinetURI + "plate-maps/details";
+
+        //return (ResponseEntity<CabinetPlateMap[]>) plateMapCabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.POST, CabinetPlateMap[].class);
+        return null;
+    }
+
+    public ResponseEntity<CabinetPlateMap[]> getActivitiesList(String activityName) {
+        log.info("Activity name is ", activityName);
+        //String plateMapURI = cabinetURI + "plate-maps/details";
+
+        CabinetPlateMap plateMap = new CabinetPlateMap();
         plateMap.setActivityName(activityName);
-        plateMap.setStatus("COMPLETED");
+        plateMap.setStatus(Status.COMPLETED);
 
-        return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.POST, PlateMap[].class);
+        //return (ResponseEntity<CabinetPlateMap[]>) plateMapCabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.POST, CabinetPlateMap[].class);
+        return null;
     }
-    
-    public ResponseEntity<PlateMap[]> getCompletedPayloadList(String activityName) {
-        log.info("Activity name is ", activityName);
-        String plateMapURI = cabinetURI + "/plate-maps/data/completed/"+activityName;
-        
-        //This is created just to follow the cabinet client but it is not used
-        PlateMap plateMap = new PlateMap();
 
-        return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.GET, PlateMap[].class);
-    }
-    
-    public ResponseEntity<PlateMap[]> getDraftPayload(String activityName) {
+    public ResponseEntity<CabinetPlateMap[]> getCompletedPayloadList(String activityName) {
         log.info("Activity name is ", activityName);
-        String plateMapURI = cabinetURI + "/plate-maps/data/draft/"+activityName;
+        //String plateMapURI = cabinetURI + "/plate-maps/data/completed/"+activityName;
 
         //This is created just to follow the cabinet client but it is not used
-        PlateMap plateMap = new PlateMap();
+        CabinetPlateMap plateMap = new CabinetPlateMap();
 
-        return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.GET, PlateMap[].class);
+        //return (ResponseEntity<CabinetPlateMap[]>) plateMapCabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.GET, CabinetPlateMap[].class);
+        return null;
     }
-    
-    public ResponseEntity<PlateMap[]> getSpecificCompletedPayload(String checksum){
+
+    public ResponseEntity<CabinetPlateMap[]> getDraftPayload(String activityName) {
+        log.info("Activity name is ", activityName);
+      //  String plateMapURI = cabinetURI + "/plate-maps/data/draft/"+activityName;
+
+        //This is created just to follow the cabinet client but it is not used
+        CabinetPlateMap plateMap = new CabinetPlateMap();
+
+        //return (ResponseEntity<CabinetPlateMap[]>) plateMapCabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.GET, CabinetPlateMap[].class);
+        return null;
+    }
+
+    public ResponseEntity<CabinetPlateMap[]> getSpecificCompletedPayload(String checksum){
         log.info("Checksum value is ", checksum);
-        String plateMapURI = cabinetURI + "/plate-maps/data/"+checksum;
-        
+        //String plateMapURI = cabinetURI + "/plate-maps/data/"+checksum;
+
         //This is created just to follow the cabinet client but it is not used
-        PlateMap plateMap = new PlateMap();
-        
-        return (ResponseEntity<PlateMap[]>) cabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.GET, PlateMap[].class);
+        CabinetPlateMap plateMap = new CabinetPlateMap();
+
+//        return (ResponseEntity<CabinetPlateMap[]>) plateMapCabinetClient.cabinetPlatemap(plateMapURI, plateMap, HttpMethod.GET, CabinetPlateMap[].class);
+
+        return null;
     }
 
     public List<ActivitySummary> getActivitySummaryList(String searchTerm) {
@@ -196,27 +196,27 @@ public class ActivityService<E> {
         });
         return activitySummaryList;
     }
-    
+
     public ResponseEntity<List<Experiment>> responseSearch(String name) {
         HttpHeaders responseHeaders = new HttpHeaders();
-        
+
         List<Experiment> response = (List<Experiment>) findActivities(name);
 
         return (ResponseEntity<List<Experiment>>) new ResponseEntity<List<Experiment>>(response,responseHeaders, HttpStatus.OK);
     }
-    
+
     public ResponseEntity<E> retrieveActivityByName(String name) {
         HttpHeaders responseHeaders = new HttpHeaders();
-        
+
         List<Experiment> response = (List<Experiment>) findActivities(name);
-        
+
         if(response.isEmpty()) {
             return (ResponseEntity<E>) new ResponseEntity<String>("No results found",responseHeaders, HttpStatus.NOT_FOUND);
         }
 
         return (ResponseEntity<E>) new ResponseEntity<Experiment>(response.get(0),responseHeaders, HttpStatus.OK);
     }
-    
+
     private List<Experiment> searchExperiment(String searchTerm) {
         final var mediaResponse = experimentKaptureClient.findByFieldWithOperator("name", searchTerm, "contains");
         return mediaResponse.getStatusCode().is2xxSuccessful() && mediaResponse.getBody() != null ?
@@ -236,16 +236,18 @@ public class ActivityService<E> {
                 .build();
     }
 
-    private List<PlateMap> getPlateMapSummaryFromCabinet(String activityName) {
+    private List<CabinetPlateMap> getPlateMapSummaryFromCabinet(String activityName) {
         RestTemplate restTemplate = new RestTemplate();
-        String cabinetplateInfoURI = cabinetURI + "plate-map-summary/"+activityName;
-        ResponseEntity<PlateMap[]> plateMapResponse = (ResponseEntity<PlateMap[]>)cabinetClient.cabinetPlatemap(cabinetplateInfoURI, null, HttpMethod.GET, PlateMap[].class);
-        return plateMapResponse.getStatusCode().is2xxSuccessful() && plateMapResponse.getBody() != null ?
-                Arrays.stream(plateMapResponse.getBody())
-                    .collect(Collectors.toList()) :
-                Collections.emptyList();
+       // String cabinetplateInfoURI = cabinetURI + "plate-map-summary/"+activityName;
+//        ResponseEntity<CabinetPlateMap[]> plateMapResponse = (ResponseEntity<CabinetPlateMap[]>)plateMapCabinetClient.cabinetPlatemap(cabinetplateInfoURI, null, HttpMethod.GET, CabinetPlateMap[].class);
+//        return plateMapResponse.getStatusCode().is2xxSuccessful() && plateMapResponse.getBody() != null ?
+//                Arrays.stream(plateMapResponse.getBody())
+//                    .collect(Collectors.toList()) :
+//                Collections.emptyList();
+
+        return null;
     }
-    
+
     private ActivitySummary buildActivitySummary(Experiment experment) {
         return ActivitySummary
                .builder()
@@ -256,14 +258,14 @@ public class ActivityService<E> {
                .versions(new ArrayList<ActivityVersion>())
                .build();
     }
-    
-    private ActivityVersion buildActivityVersion(PlateMap plateMap) {
+
+    private ActivityVersion buildActivityVersion(CabinetPlateMap plateMap) {
         return ActivityVersion.builder()
                .id(plateMap.getId())
-               .status(plateMap.getStatus())
+               .status(plateMap.getStatus().name())
                .numPlates(plateMap.getNumPlates())
                .timestamp(plateMap.getLastModified())
                .build();
     }
-     
+
 }

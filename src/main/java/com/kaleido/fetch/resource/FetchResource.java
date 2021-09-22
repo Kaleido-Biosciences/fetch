@@ -4,6 +4,7 @@ import com.kaleido.fetch.domain.Component;
 import com.kaleido.fetch.service.FetchService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
+import io.micrometer.core.annotation.Timed;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
@@ -31,6 +32,7 @@ public class FetchResource {
             @ApiResponse(code = 200, message = "Successful operation", response = String.class)
     })
     @GetMapping("/health")
+    @Timed
     public ResponseEntity<String> health() {
         return ResponseEntity.ok("Alive");
     }
@@ -41,6 +43,7 @@ public class FetchResource {
             @ApiResponse(code = 400, message = "Invalid status value")
     })
     @GetMapping("/components/search/{searchTerm}")
+    @Timed
     public ResponseEntity<List<Component>> searchComponents(@PathVariable String searchTerm) {
         return ResponseEntity.ok(fetchService.findComponents(searchTerm));
     }
@@ -51,13 +54,15 @@ public class FetchResource {
             @ApiResponse(code = 400, message = "Invalid status value")
     })
     @PostMapping("/components/find")
+    @Timed
     public ResponseEntity<List<Component>> getComponentsByClassificationAndId(@RequestBody List<Component> searchComponents) {
         return ResponseEntity.ok(fetchService.getComponentsByClassificationAndId(searchComponents));
     }
     @GetMapping("/activities/barcodes/{activityName}")
+    @Timed
     public ResponseEntity<List<String>> getBarcodesByActivityName(@PathVariable String activityName) {
     	return ResponseEntity.ok(fetchService.getAllBarcodes(activityName));
     }
-  
+
 
 }

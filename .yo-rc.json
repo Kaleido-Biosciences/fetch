@@ -1,0 +1,38 @@
+{
+  "generator-jhipster": {
+    "promptValues": {
+      "packageName": "com.kaleido.fetch"
+    },
+    "jhipsterVersion": "6.10.4",
+    "applicationType": "monolith",
+    "baseName": "fetch",
+    "packageName": "com.kaleido.fetch",
+    "packageFolder": "com/kaleido/fetch",
+    "serverPort": "8080",
+    "authenticationType": "jwt",
+    "cacheProvider": "no",
+    "enableHibernateCache": false,
+    "websocket": false,
+    "databaseType": "no",
+    "devDatabaseType": "no",
+    "prodDatabaseType": "no",
+    "searchEngine": false,
+    "messageBroker": false,
+    "serviceDiscoveryType": false,
+    "buildTool": "maven",
+    "enableSwaggerCodegen": false,
+    "jwtSecretKey": "MTJlMjhiMzM4YmU4NWM4YzNjZTY0NzM2MzdkNGZhYWUxZmNmNWVmMmFmNmQxNjY0MTZhMDdlNGU0NWJkZmQ3ZjhkODM1OGQxY2U5ZWUzOTQxYjMwMjhjOTYwNWI3NDUyMTQyMGM1ZmFjM2Q1ZmM2OWEwZjgwZmJiMTMxMTQyYTM=",
+    "embeddableLaunchScript": false,
+    "creationTimestamp": 1603218744870,
+    "testFrameworks": [],
+    "jhiPrefix": "jhi",
+    "entitySuffix": "",
+    "dtoSuffix": "DTO",
+    "otherModules": [],
+    "enableTranslation": false,
+    "clientPackageManager": "npm",
+    "blueprints": [],
+    "skipClient": true,
+    "skipUserManagement": true
+  }
+}

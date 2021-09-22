@@ -1,8 +1,9 @@
 package com.kaleido.fetch.resource;
 
+import com.kaleido.cabinetclient.domain.CabinetPlateMap;
 import com.kaleido.fetch.domain.Activity;
 import com.kaleido.fetch.domain.ActivitySummary;
-import com.kaleido.fetch.domain.PlateMap;
+import com.kaleido.fetch.domain.enumeration.PlateMapStatus;
 import com.kaleido.fetch.service.ActivityService;
 import com.kaleido.kaptureclient.domain.Experiment;
 
@@ -55,27 +56,25 @@ public class ActivityResource {
     public ResponseEntity<Activity> getActivity(@PathVariable String id, @PathVariable String version) {
         return ResponseEntity.ok(activityService.getActivity(Long.valueOf(id)));
     }
-    
+
     @ApiOperation(value = "Saves a new platemap draft.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation, returns the most recent activity with an updated lastModified time", response = Activity.class),
             @ApiResponse(code = 400, message = "Activity was not most recent activity, and returns the most up to date activity", response = Activity.class)
     })
     @PostMapping("/save")
-    public ResponseEntity<ResponseEntity<String>> saveNewActivity(@RequestBody PlateMap plateMap) {
-    	plateMap.setStatus("DRAFT");
+    public ResponseEntity<ResponseEntity<String>> saveNewActivity(@RequestBody CabinetPlateMap plateMap) {
         return ResponseEntity.ok(activityService.saveNewActivityDraft(plateMap));
     }
-    
+
     @ApiOperation(value = "Saves a draft of existing platemap data")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation, returns the most recent activity with an updated lastModified time", response = Activity.class),
             @ApiResponse(code = 400, message = "Activity was not most recent activity, and returns the most up to date activity", response = Activity.class)
     })
     @PostMapping("/save/draft")
-    public ResponseEntity<ResponseEntity<String>> saveActivityDraft(@RequestBody PlateMap plateMap) {
-    	plateMap.setStatus("DRAFT");
-        return ResponseEntity.ok(activityService.saveActivityDraft(plateMap));
+    public ResponseEntity<ResponseEntity<String>> saveActivityDraft(@RequestBody CabinetPlateMap plateMap) {
+        return ResponseEntity.ok(activityService.saveActivity(plateMap, PlateMapStatus.DRAFT));
     }
 
     @ApiOperation(value = "Saves a snapshot of the passed activity, and creates a version which can be retrieved at a later time.")
@@ -84,51 +83,50 @@ public class ActivityResource {
             @ApiResponse(code = 400, message = "Invalid status value")
     })
     @PostMapping("/save/completed")
-    public ResponseEntity<ResponseEntity<String>> saveCompletedActivity(@RequestBody PlateMap plateMap) {
-        plateMap.setStatus("COMPLETED");
-        return ResponseEntity.ok(activityService.saveActivityDraft(plateMap));
+    public ResponseEntity<ResponseEntity<String>> saveCompletedActivity(@RequestBody CabinetPlateMap plateMap) {
+        return ResponseEntity.ok(activityService.saveActivity(plateMap, PlateMapStatus.COMPLETED));
     }
-    
+
     @ApiOperation(value = "Retrieves platemap data for the provided Activity name")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Activity.class),
             @ApiResponse(code = 400, message = "Invalid status value")
     })
     @PostMapping("/retrieve/platemap")
-    public ResponseEntity<ResponseEntity<PlateMap>> searchActivitiesPlatemap(@RequestBody PlateMap plateMap) {
+    public ResponseEntity<ResponseEntity<CabinetPlateMap>> searchActivitiesPlatemap(@RequestBody CabinetPlateMap plateMap) {
         return ResponseEntity.ok(activityService.getActivitiesPlatemap(plateMap));
     }
-    
+
     @ApiOperation(value = "Retrieves the list of completed activity for the given activityName")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = PlateMap[].class),
+            @ApiResponse(code = 200, message = "Successful operation", response = CabinetPlateMap[].class),
             @ApiResponse(code = 400, message = "Invalid status value")
     })
     @GetMapping("/cabinet/completedlist/{activityName}")
     public ResponseEntity<ResponseEntity<Activity>> getCompletedActivity(@PathVariable String activityName) {
         return ResponseEntity.ok(activityService.getCompletedPayloadList(activityName));
     }
-    
+
     @ApiOperation(value = "Retrieves the list of draft activity for the given activityName")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = PlateMap[].class),
+            @ApiResponse(code = 200, message = "Successful operation", response = CabinetPlateMap[].class),
             @ApiResponse(code = 400, message = "Invalid status value")
     })
     @GetMapping("/cabinet/draft/{activityName}")
     public ResponseEntity<ResponseEntity<Activity>> getDraftActivity(@PathVariable String activityName) {
         return ResponseEntity.ok(activityService.getDraftPayload(activityName));
     }
-    
+
     @ApiOperation(value = "Retrieves a specific completed payload based on checksum")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = PlateMap[].class),
+            @ApiResponse(code = 200, message = "Successful operation", response = CabinetPlateMap[].class),
             @ApiResponse(code = 400, message = "Invalid status value")
     })
     @GetMapping("/cabinet/completed/{checksum}")
     public ResponseEntity<ResponseEntity<Activity>> getSpecificCompletedActivity(@PathVariable String checksum) {
         return ResponseEntity.ok(activityService.getSpecificCompletedPayload(checksum));
     }
-    
+
     @ApiOperation(value = "Retrieves the activity summary details by given activity name")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Activity.class),
@@ -138,7 +136,7 @@ public class ActivityResource {
     public ResponseEntity<List<ActivitySummary>> getActivitySummary(@PathVariable String activityName) {
          return ResponseEntity.ok(activityService.getActivitySummaryList(activityName));
     }
-    
+
     @ApiOperation(value = "Retrieves the activity details based on given name")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Successful operation", response = Experiment.class),
