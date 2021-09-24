@@ -18,6 +18,9 @@
     <properties>
         <java.version>11</java.version>
         <jhipster-dependencies.version>3.9.1</jhipster-dependencies.version>
+        <!-- These remain empty unless the corresponding profile is active -->
+        <profile.swagger />
+        <profile.tls />
     </properties>
     <dependencyManagement>
         <dependencies>
@@ -165,5 +168,85 @@
             </plugin>
         </plugins>
     </build>
-
+    <profiles>
+        <profile>
+            <id>swagger</id>
+            <properties>
+                <profile.swagger>,swagger</profile.swagger>
+            </properties>
+        </profile>
+        <profile>
+            <id>tls</id>
+            <properties>
+                <profile.tls>,tls</profile.tls>
+            </properties>
+        </profile>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-undertow</artifactId>
+                </dependency>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-devtools</artifactId>
+                    <optional>true</optional>
+                </dependency>
+            </dependencies>
+            <properties>
+                <!-- default Spring profiles -->
+                <spring.profiles.active>dev${profile.tls}${profile.swagger}</spring.profiles.active>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-undertow</artifactId>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <configuration>
+                            <filesets>
+                                <fileset>
+                                    <directory>target/classes/static/</directory>
+                                </fileset>
+                            </filesets>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <configuration>
+                            <mainClass>${start-class}</mainClass>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>build-info</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>pl.project13.maven</groupId>
+                        <artifactId>git-commit-id-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+            <properties>
+                <!-- default Spring profiles -->
+                <spring.profiles.active>prod${profile.swagger}</spring.profiles.active>
+            </properties>
+        </profile>
+        <!-- jhipster-needle-maven-add-profile -->
+    </profiles>
 </project>
