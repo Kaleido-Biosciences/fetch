@@ -4,43 +4,43 @@
 image: openjdk:11
 
 cache:
-    key: "$CI_COMMIT_REF_NAME"
-    paths:
-        - .maven
+  key: '$CI_COMMIT_REF_NAME'
+  paths:
+    - .maven
 stages:
-    - build
-    - package
-    - test
-    - setup
-    - cleanup
-    - deploy
+  - build
+  - package
+  - test
+  - setup
+  - cleanup
+  - deploy
 
 maven-build:
-    stage: build
-    before_script:
-        - chmod +x mvnw
-    variables:
-      #CABINET_URL: ${CABINET_URL}
-      FETCH_ENDPOINT: ${FETCH_URL}
-    script:
-      - ./mvnw compile -Dspring.profiles.active=prod -DskipTests
-      - ./mvnw package -Dspring.profiles.active=prod
-    artifacts:
-        paths:
-            - target/*.jar
+  stage: build
+  before_script:
+    - chmod +x mvnw
+  variables:
+    #CABINET_URL: ${CABINET_URL}
+    FETCH_ENDPOINT: ${FETCH_URL}
+  script:
+    - ./mvnw compile -Dspring.profiles.active=prod -DskipTests
+    - ./mvnw package -Dspring.profiles.active=prod
+  artifacts:
+    paths:
+      - target/*.jar
 
 image_build:
   image: docker:git
   stage: package
   before_script:
-     - ls
+    - ls
   only:
     - master
     - develop
   services:
     - docker:dind
   script:
-    - cp src/main/docker/* .
+    - cp -r src/main/docker/* .
     - ls
     - docker info
     - docker login -u "${CI_REGISTRY_USER}" -p "${CI_REGISTRY_PASSWORD}" "${CI_REGISTRY}"
@@ -79,77 +79,75 @@ setup_environment:
     - kubectl create secret docker-registry regsecret --docker-server=${CI_REGISTRY} --docker-username=${CI_REGISTRY_USER} --docker-password=${CI_REGISTRY_PASSWORD} --docker-email=wesley.fowlks@kaleido.com --namespace ${CI_PROJECT_NAME}
 
 teardown_staging:
-    image: kokyj/kubectl-aws:1.14
-    stage: cleanup
-    allow_failure: true
-    environment:
-        name: staging
-        url: https://$CI_PROJECT_NAME-staging.apps.kaleidobio.com
-    only:
-        - develop
-    before_script:
-        - ls
-    script:
+  image: kokyj/kubectl-aws:1.14
+  stage: cleanup
+  allow_failure: true
+  environment:
+    name: staging
+    url: https://$CI_PROJECT_NAME-staging.apps.kaleidobio.com
+  only:
+    - develop
+  before_script:
+    - ls
+  script:
+    - kubectl version
 
-        - kubectl version
+    # Build the manifests
+    - cd manifests/
+    - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" deployment.yaml service.yaml
+    - sed -i "s/__SERVER_PORT__/8080/" deployment.yaml service.yaml
+    - sed -i "s/__VERSION__/${CI_COMMIT_REF_NAME}/" deployment.yaml service.yaml
+    - sed -i "s/__CI_PROJ_NAME__/${CI_PROJECT_NAME}/" deployment.yaml service.yaml
+    - sed -i "s/__CI_PROJECT_NAMESPACE__/${CI_PROJECT_NAMESPACE}/" deployment.yaml
+    - sed -i "s/__CI_PROJECT_NAME__/${CI_PROJECT_NAME}/" deployment.yaml
+    - sed -i "s/__URL__/${CI_PROJECT_NAME}-staging/" ingress.yaml deployment.yaml
+    - cat deployment.yaml
+    - cat service.yaml
 
-        # Build the manifests
-        - cd manifests/
-        - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" deployment.yaml service.yaml
-        - sed -i "s/__SERVER_PORT__/8080/" deployment.yaml service.yaml
-        - sed -i "s/__VERSION__/${CI_COMMIT_REF_NAME}/" deployment.yaml service.yaml
-        - sed -i "s/__CI_PROJ_NAME__/${CI_PROJECT_NAME}/" deployment.yaml service.yaml
-        - sed -i "s/__CI_PROJECT_NAMESPACE__/${CI_PROJECT_NAMESPACE}/" deployment.yaml
-        - sed -i "s/__CI_PROJECT_NAME__/${CI_PROJECT_NAME}/" deployment.yaml
-        - sed -i "s/__URL__/${CI_PROJECT_NAME}-staging/" ingress.yaml deployment.yaml
-        - cat deployment.yaml
-        - cat service.yaml
-
-        # Cleanup old services to make sure new docker containers are pulled
-        - kubectl delete -f deployment.yaml
-        - kubectl delete -f service.yaml
+    # Cleanup old services to make sure new docker containers are pulled
+    - kubectl delete -f deployment.yaml
+    - kubectl delete -f service.yaml
 
 deploy_staging:
-    image: kokyj/kubectl-aws:1.14
-    stage: deploy
-    environment:
-        name: staging
-        url: https://$CI_PROJECT_NAME-staging.apps.kaleidobio.com
-    only:
-        - develop
-    before_script:
-        - ls
-    script:
+  image: kokyj/kubectl-aws:1.14
+  stage: deploy
+  environment:
+    name: staging
+    url: https://$CI_PROJECT_NAME-staging.apps.kaleidobio.com
+  only:
+    - develop
+  before_script:
+    - ls
+  script:
+    - kubectl version
 
-        - kubectl version
+    # Build the manifests
+    - cd manifests/
+    - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" deployment.yaml ingress.yaml service.yaml
+    - sed -i "s/__SERVER_PORT__/8080/" deployment.yaml ingress.yaml service.yaml
+    - sed -i "s/__VERSION__/${CI_COMMIT_REF_NAME}/" deployment.yaml ingress.yaml service.yaml
+    - sed -i "s/__CI_PROJ_NAME__/${CI_PROJECT_NAME}/" deployment.yaml ingress.yaml service.yaml
+    - sed -i "s/__CI_PROJECT_NAMESPACE__/${CI_PROJECT_NAMESPACE}/" deployment.yaml
+    - sed -i "s/__CI_PROJECT_NAME__/${CI_PROJECT_NAME}/" deployment.yaml
+    - sed -i 's/__DATADOG_ENABLED__/"false"/' deployment.yaml
+    - sed -i "s/__DATADOG_API_KEY__/${datadog_api_key}/" deployment.yaml
+    - sed -i "s/__DATADOG_APPLICATION_KEY__/${datadog_application_key}/" deployment.yaml
+    - sed -i "s/__URL__/${CI_PROJECT_NAME}-staging/" ingress.yaml deployment.yaml
+    - sed -i "s/__KAPTURE_CLIENT_PASSWORD__/${KAPTURE_CLIENT_PASSWORD}/" deployment.yaml
+    - sed -i "s/__KAPTURE_CLIENT_USERNAME__/${KAPTURE_CLIENT_USERNAME}/" deployment.yaml
+    - sed -i "s/__KAPTURE_CLIENT_URL__/${KAPTURE_CLIENT_URL}/" deployment.yaml
+    - sed -i "s/__CABINET_URL__/${CABINET_URL}/" deployment.yaml
+    - sed -i "s/__FETCH_URL__/${FETCH_URL}/" deployment.yaml
+    - cat deployment.yaml
+    - cat ingress.yaml
+    - cat service.yaml
 
-        # Build the manifests
-        - cd manifests/
-        - sed -i "s/__CI_ENVIRONMENT_SLUG__/${CI_ENVIRONMENT_SLUG}/" deployment.yaml ingress.yaml service.yaml
-        - sed -i "s/__SERVER_PORT__/8080/" deployment.yaml ingress.yaml service.yaml
-        - sed -i "s/__VERSION__/${CI_COMMIT_REF_NAME}/" deployment.yaml ingress.yaml service.yaml
-        - sed -i "s/__CI_PROJ_NAME__/${CI_PROJECT_NAME}/" deployment.yaml ingress.yaml service.yaml
-        - sed -i "s/__CI_PROJECT_NAMESPACE__/${CI_PROJECT_NAMESPACE}/" deployment.yaml
-        - sed -i "s/__CI_PROJECT_NAME__/${CI_PROJECT_NAME}/" deployment.yaml
-        - sed -i 's/__DATADOG_ENABLED__/"false"/' deployment.yaml
-        - sed -i "s/__DATADOG_API_KEY__/${datadog_api_key}/" deployment.yaml
-        - sed -i "s/__DATADOG_APPLICATION_KEY__/${datadog_application_key}/" deployment.yaml
-        - sed -i "s/__URL__/${CI_PROJECT_NAME}-staging/" ingress.yaml deployment.yaml
-        - sed -i "s/__KAPTURE_CLIENT_PASSWORD__/${KAPTURE_CLIENT_PASSWORD}/" deployment.yaml
-        - sed -i "s/__KAPTURE_CLIENT_USERNAME__/${KAPTURE_CLIENT_USERNAME}/" deployment.yaml
-        - sed -i "s/__KAPTURE_CLIENT_URL__/${KAPTURE_CLIENT_URL}/" deployment.yaml
-        - sed -i "s/__CABINET_URL__/${CABINET_URL}/" deployment.yaml
-        - sed -i "s/__FETCH_URL__/${FETCH_URL}/" deployment.yaml
-        - cat deployment.yaml
-        - cat ingress.yaml
-        - cat service.yaml
-
-        # Prepare for liftoff
-        - kubectl apply -f deployment.yaml
-        - kubectl apply -f service.yaml
-        - kubectl apply -f ingress.yaml
-        - kubectl rollout status -f deployment.yaml
-        - kubectl get all,ing -l ref=${CI_ENVIRONMENT_SLUG}
+    # Prepare for liftoff
+    - kubectl apply -f deployment.yaml
+    - kubectl apply -f service.yaml
+    - kubectl apply -f ingress.yaml
+    - kubectl rollout status -f deployment.yaml
+    - kubectl get all,ing -l ref=${CI_ENVIRONMENT_SLUG}
 
 teardown_live:
   image: kokyj/kubectl-aws:1.14
@@ -180,7 +178,6 @@ teardown_live:
     # Cleanup old services to make sure new docker containers are pulled
     - kubectl delete -f deployment.yaml
     - kubectl delete -f service.yaml
-
 
 deploy_live:
   image: kokyj/kubectl-aws:1.14
