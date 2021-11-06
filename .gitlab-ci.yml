@@ -136,6 +136,9 @@ deploy_staging:
     - sed -i "s/__KAPTURE_CLIENT_PASSWORD__/${KAPTURE_CLIENT_PASSWORD}/" deployment.yaml
     - sed -i "s/__KAPTURE_CLIENT_USERNAME__/${KAPTURE_CLIENT_USERNAME}/" deployment.yaml
     - sed -i "s/__KAPTURE_CLIENT_URL__/${KAPTURE_CLIENT_URL}/" deployment.yaml
+    - sed -i "s/__CABINET_CLIENT_PASSWORD__/${CABINET_CLIENT_PASSWORD}/" deployment.yaml
+    - sed -i "s/__CABINET_CLIENT_USERNAME__/${CABINET_CLIENT_USERNAME}/" deployment.yaml
+    - sed -i "s/__CABINET_CLIENT_URL__/${CABINET_CLIENT_URL}/" deployment.yaml
     - sed -i "s/__CABINET_URL__/${CABINET_URL}/" deployment.yaml
     - sed -i "s/__FETCH_URL__/${FETCH_URL}/" deployment.yaml
     - cat deployment.yaml
@@ -207,6 +210,9 @@ deploy_live:
     - sed -i "s/__KAPTURE_CLIENT_PASSWORD__/${KAPTURE_CLIENT_PASSWORD}/" deployment.yaml
     - sed -i "s/__KAPTURE_CLIENT_USERNAME__/${KAPTURE_CLIENT_USERNAME}/" deployment.yaml
     - sed -i "s/__KAPTURE_CLIENT_URL__/${KAPTURE_CLIENT_URL}/" deployment.yaml
+    - sed -i "s/__CABINET_CLIENT_PASSWORD__/${CABINET_CLIENT_PASSWORD}/" deployment.yaml
+    - sed -i "s/__CABINET_CLIENT_USERNAME__/${CABINET_CLIENT_USERNAME}/" deployment.yaml
+    - sed -i "s/__CABINET_CLIENT_URL__/${CABINET_CLIENT_URL}/" deployment.yaml
     - sed -i "s/__CABINET_URL__/${CABINET_URL}/" deployment.yaml
     - sed -i "s/__FETCH_URL__/${FETCH_URL}/" deployment.yaml
     - cat deployment.yaml

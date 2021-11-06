@@ -43,6 +43,12 @@ spec:
           value: __DATADOG_APPLICATION_KEY__
         - name: CABINET_URL
           value: __CABINET_URL__
+        - name: CABINET_CLIENT_PASSWORD
+          value: __CABINET_CLIENT_PASSWORD__
+        - name: CABINET_CLIENT_USERNAME
+          value: __CABINET_CLIENT_USERNAME__
+        - name: CABINET_CLIENT_URL
+          value: __CABINET_CLIENT_URL__
         - name: FETCH_ENDPOINT
           value: __FETCH_URL__
         ports:
