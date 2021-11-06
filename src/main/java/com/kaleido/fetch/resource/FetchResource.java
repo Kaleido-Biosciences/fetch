@@ -1,6 +1,7 @@
 package com.kaleido.fetch.resource;
 
 import com.kaleido.fetch.domain.Component;
+import com.kaleido.fetch.domain.dto.TimePointUnitDTO;
 import com.kaleido.fetch.service.FetchService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
@@ -37,10 +38,23 @@ public class FetchResource {
         return ResponseEntity.ok("Alive");
     }
 
+
+
     @ApiOperation(value = "Finds Components by text string to match on")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Successful operation", response = Component[].class),
-            @ApiResponse(code = 400, message = "Invalid status value")
+        @ApiResponse(code = 200, message = "Successful operation", response = TimePointUnitDTO[].class),
+        @ApiResponse(code = 400, message = "Invalid status value")
+    })
+    @GetMapping("/dropdowns/time-point-unit")
+    @Timed
+    public ResponseEntity<List<TimePointUnitDTO>> findTimePointUnits() {
+        return ResponseEntity.ok(fetchService.findTimePointUnits());
+    }
+
+    @ApiOperation(value = "Finds Components by text string to match on")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Successful operation", response = Component[].class),
+        @ApiResponse(code = 400, message = "Invalid status value")
     })
     @GetMapping("/components/search/{searchTerm}")
     @Timed

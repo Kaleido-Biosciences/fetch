@@ -3,15 +3,9 @@ package com.kaleido.fetch.service;
 import com.kaleido.cabinetclient.client.CabinetClient;
 import com.kaleido.cabinetclient.domain.CabinetPlateMap;
 import com.kaleido.fetch.domain.Component;
+import com.kaleido.fetch.domain.dto.TimePointUnitDTO;
 import com.kaleido.kaptureclient.client.KaptureClient;
-import com.kaleido.kaptureclient.domain.Batch;
-import com.kaleido.kaptureclient.domain.BatchAlias;
-import com.kaleido.kaptureclient.domain.ChemicalConcept;
-import com.kaleido.kaptureclient.domain.Community;
-import com.kaleido.kaptureclient.domain.Experiment;
-import com.kaleido.kaptureclient.domain.Media;
-import com.kaleido.kaptureclient.domain.Platemap;
-import com.kaleido.kaptureclient.domain.Supplement;
+import com.kaleido.kaptureclient.domain.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -41,15 +35,17 @@ public class FetchService {
     private KaptureClient<Supplement> supplementKaptureClient;
     private KaptureClient<Experiment> experimentKaptureClient;
     private KaptureClient<Platemap> plateMapKaptureClient;
+    private KaptureClient<Concept> conceptKaptureClient;
     private CabinetClient<CabinetPlateMap> cabinetPlateMapCabinetClient;
 
-    public FetchService(KaptureClient<Media> mediaKaptureClient, KaptureClient<Batch> batchKaptureClient, KaptureClient<Community> communityKaptureClient, KaptureClient<Supplement> supplementKaptureClient, KaptureClient<Experiment> experimentKaptureClient, KaptureClient<Platemap> plateMapKaptureClient, CabinetClient<CabinetPlateMap> cabinetPlateMapCabinetClient) {
+    public FetchService(KaptureClient<Media> mediaKaptureClient, KaptureClient<Batch> batchKaptureClient, KaptureClient<Community> communityKaptureClient, KaptureClient<Supplement> supplementKaptureClient, KaptureClient<Experiment> experimentKaptureClient, KaptureClient<Platemap> plateMapKaptureClient, KaptureClient<Concept> conceptKaptureClient, CabinetClient<CabinetPlateMap> cabinetPlateMapCabinetClient) {
         this.mediaKaptureClient = mediaKaptureClient;
         this.batchKaptureClient = batchKaptureClient;
         this.communityKaptureClient = communityKaptureClient;
         this.supplementKaptureClient = supplementKaptureClient;
         this.experimentKaptureClient = experimentKaptureClient;
         this.plateMapKaptureClient = plateMapKaptureClient;
+        this.conceptKaptureClient = conceptKaptureClient;
         this.cabinetPlateMapCabinetClient = cabinetPlateMapCabinetClient;
     }
 
@@ -373,5 +369,23 @@ public class FetchService {
                 "Description", Optional.ofNullable(supplement.getDescription())
             ))
             .build();
+    }
+
+    private TimePointUnitDTO buildTimePointDTO(Concept concept) {
+        return new TimePointUnitDTO()
+            .Id(concept.getId())
+            .Abbreviation(concept.getLabel())
+            .Name(concept.getDefinition());
+    }
+
+    public List<TimePointUnitDTO> findTimePointUnits() {
+        ResponseEntity<List<Concept>> timePointConceptsResponse = conceptKaptureClient.findAllByMethod("scheme", "Time Point Unit Type");
+
+        return timePointConceptsResponse.getStatusCode().is2xxSuccessful() && timePointConceptsResponse.getBody() != null ?
+            //map the responses to a Component
+            timePointConceptsResponse.getBody().stream()
+                .map(this::buildTimePointDTO)
+                .collect(Collectors.toList()) :
+            Collections.emptyList();
     }
 }

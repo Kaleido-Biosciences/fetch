@@ -11,7 +11,7 @@
 
     <groupId>com.kaleidobio</groupId>
     <artifactId>fetch</artifactId>
-    <version>0.0.5</version>
+    <version>1.0.0</version>
     <name>fetch</name>
     <description>Endpoint for Atlas that looks up components</description>
 
@@ -46,12 +46,12 @@
         <dependency>
             <groupId>com.kaleido</groupId>
             <artifactId>kapture-client</artifactId>
-            <version>3.2.20</version>
+            <version>3.2.33</version>
         </dependency>
         <dependency>
             <groupId>com.kaleido</groupId>
             <artifactId>cabinet-client</artifactId>
-            <version>1.0.3</version>
+            <version>1.0.5</version>
         </dependency>
         <dependency>
             <groupId>io.github.jhipster</groupId>
@@ -122,6 +122,17 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.codahale.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.codahale.metrics/metrics-graphite -->
+        <dependency>
+            <groupId>com.codahale.metrics</groupId>
+            <artifactId>metrics-graphite</artifactId>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>io.micrometer</groupId>
